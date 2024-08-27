@@ -1,121 +1,188 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>real time solar wind</title>
-    <center class="row"> 
-        <h1>Real Time Solar Wind Data</h1> 
-        <h2 class="card-subhead">1 day data</h3>
-    </center> 
+    <title>Real Time Solar Wind Data</title>
+    <style>
+        .page-title {
+            text-align: center;
+            font-size: 2em; 
+            font-weight: bold;
+            margin-top: 20px; 
+            margin-bottom: 10px; 
+        }
+        .chart {
+            width: 100%;
+            height: 75px; /* adjust the height as needed */
+            margin: 5px; /* adjust the margin as needed */
+        }
+        .line {
+          fill: none;
+          stroke: #ffab00;
+          stroke-width: 3;
+        }
+        
+        .overlay {
+        fill: none;
+        pointer-events: all;
+
+      }
+      
+      /* Style the dots by assigning a fill and stroke */
+      .dot {
+       fill: #ffab00;
+       stroke: #fff;
+      }
+      .focus circle {
+        fill: none;
+        stroke: steelblue;
+      }
+    </style>
+</head>
+<body>
+    <div class="page-title">Solar Wind Data Viewer</div>
     <hr />
     <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
+    <!--moment.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <!-- Create multiple divs for the charts -->
+    <div id="chart1" class="chart"></div>
+    <div id="chart2" class="chart"></div>
+    <div id="chart3" class="chart"></div>
+    <div id="chart4" class="chart"></div>
+    <div id="chart5" class="chart"></div>
+    <div id="chart6" class="chart"></div>
 
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+    <script>
+        // Read the data
+        fetch('api')
+            .then(response => response.json())
+            .then(data => {
+                ChartInterpMagneticField(data);
+                // Uncomment and implement other chart functions as needed
+                // ChartDensity(data);
+                // ChartSpeed(data);
+                // ChartTemp(data);
+                // ChartLong(data);
+                // ChartLat(data);
+            })
+            .catch(error => console.log('Error fetching data:', error));
 
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
-<!-- Load d3.js -->
-<script src="https://d3js.org/d3.v4.js"></script>
+        function ChartInterpMagneticField(data) {
+            // Parse data
+            const parseTime = function(timeString) {
+                const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
+                return date.isValid() ? date.toDate() : null; // Convert to JavaScript Date
+            };
 
-<!-- Create multiple divs for the charts -->
-<div id="chart1" class="chart"></div>
-<div id="chart2" class="chart"></div>
-<div id="chart3" class="chart"></div>
-<div id="chart4" class="chart"></div>
-<div id="chart5" class="chart"></div>
-<div id="chart6" class="chart"></div>
-<div id="chart7" class="chart"></div>
+            const dataParsed = data.labels.slice(0, 1388).map((label, index) => {
+                const parsedDate = parseTime(label);
+                return {
+                    date: parsedDate,
+                    chartspeed: data.chartspeed?.[index] || 0,
+                };
+            }).filter(d => d.date !== null); // Filter out invalid dates
 
-<script>
-//Read the data
-fetch('api')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Fetched data:', data);
-        drawCharts(data);
-    })
-    .catch(error => console.log('Error fetching data:' , error));
-    function drawCharts(data) {
-            const chartIds = [
-                '#chart1', '#chart2', '#chart3', '#chart4', '#chart5', '#chart6', '#chart7'
-            ];
-
-            // Parse data and prepare for each chart
-            const parseTime = d3.timeParse("%H:%M");
-            const dataParsed = data.labels.map((label, index) => ({
-                date: parseTime(label),
-                chartbx: +data.chartbx[index] || 0,
-                chartby: +data.chartby[index] || 0,
-                chartbz: +data.chartbz[index] || 0,
-                chartdensity: +data.chartdensity[index] || 0,
-                chartspeed: +data.chartspeed[index] || 0,
-                chartlat: +data.chartlat[index] || 0,
-                chartblon: +data.chartblon[index] || 0,
-                chartbt: +data.chartbt[index] || 0
-            }));
-
-            // Define chart drawing function
-            function createChart(containerId, yAccessor,title) {
-                // Set dimensions and margins
-                const margin = {top: 10, right: 30, bottom: 30, left: 50},
-                    width = 1200 - margin.left - margin.right,
-                    height = 200 - margin.top - margin.bottom;
-
-                // Append the SVG object
-                const svg = d3.select(containerId)
-                    .append("svg")
-                        .attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom)
-                    .append("g")
-                        .attr("transform", `translate(${margin.left},${margin.top})`);
+            function createChart(containerId, yAccessor) {
+                // Select the container chart
+                const chart = d3.select(containerId);
+                // Create margins
+                const margin = { top: 20, right: 20, bottom: 50, left: 75 };
+                const width = chart.node().getBoundingClientRect().width - margin.left - margin.right;
+                const height = 200 - margin.top - margin.bottom;
+              
+                // Create the SVG
+                const svg = chart.append('svg')
+                    .attr('width', width + margin.left + margin.right)
+                    .attr('height', height + margin.top + margin.bottom)
+                    .append('g')
+                    .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
                 // Create scales
-                const x = d3.scaleTime()
+                
+                const xScale = d3.scaleTime()
                     .domain(d3.extent(dataParsed, d => d.date))
                     .range([0, width]);
 
-                const y = d3.scaleLinear()
-                    .domain([0, d3.max(dataParsed, d => d[yAccessor])])
-                    .nice()
-                    .range([height, 0]);
+                const yScale = d3.scaleLinear()
+                    .domain([d3.min(dataParsed, d => d[yAccessor]), d3.max(dataParsed, d => d[yAccessor])])
+                    .range([height, 0])
+                    .nice();
 
+                //generate line
+                const line = d3.line()
+                    .curve(d3.curveMonotoneX)
+                    .defined(d => d[yAccessor] > 0)
+                    .x(d => xScale(d.date))
+                    .y(d => yScale(d[yAccessor]));
+
+                // Define zoom 
+                const zoom = d3.zoom()
+                    .scaleExtent([1, 32])
+                    .on('zoom', zoomed);
+
+                // Apply zoom behavior
+                svg.append('rect')
+                    .attr('class', 'overlay')
+                    .attr('width', width)
+                    .attr('height', height)
+                    .call(zoom);
+
+                function zoomed() {
+                    const new_xScale = d3.event.transform.rescaleX(xScale);
+                    const new_yScale = d3.event.transform.rescaleY(yScale);
+
+                    svg.select('.x-axis')
+                        .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+                    svg.select('.y-axis')
+                        .call(d3.axisLeft(new_yScale).ticks(3));
+
+                    svg.select('.line')
+                        .attr('d', line.x(d => new_xScale(d.date)).y(d => new_yScale(d[yAccessor])));
+                }  
+         
                 // Add X axis
                 svg.append("g")
+                    .attr("class", "x-axis")    
+                    .attr("clip-path", "url(#clip)") // add the clip path!
                     .attr("transform", `translate(0,${height})`)
-                    .call(d3.axisBottom(x));
+                    .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
                 // Add Y axis
                 svg.append("g")
-                    .call(d3.axisLeft(y));
+                    .attr("class", "y-axis")
+                    .call(d3.axisLeft(yScale).ticks(3))
+                    .call(g => g.selectAll(".tick line").clone()
+                    .attr("x2", width - margin.left - margin.right)
+                    .attr("stroke-opacity", 0.1))
+                  
 
-                // Add the area
+                // Add the line
                 svg.append("path")
-                    .datum(dataParsed)
-                    .attr("fill", "steelblue")
-                    .attr("stroke", "none")
-                    .attr("d", d3.area()
-                        .x(d => x(d.date))
-                        .y0(height)
-                        .y1(d => y(d[yAccessor]))
-                    );
-                // Add the title
-                svg.append("text")
-                .attr("x", width / 2)
-                .attr("y", -margin.top / 2)
-                .attr("text-anchor", "middle")
-                .style("font-size", "16px")
-                .style("font-weight", "bold")
-                .text(title);
+                    .data([dataParsed])
+                    .attr("class", "line") // Assign a class for styling 
+                    .attr("clip-path", "url(#clip)") // add the clip path!
+                    .attr("stroke-width", 1.5)
+                    .attr("d", line(dataParsed));
+                  
             }
+                
+                    createChart('#chart1', 'chartspeed');
+          }
 
-            createChart('#chart1', 'chartbx', 'Chart Bx');
-createChart('#chart2', 'chartby', 'Chart By');
-createChart('#chart3', 'chartbz', 'Chart Bz');
-createChart('#chart4', 'chartdensity', 'Chart Density');
-createChart('#chart5', 'chartspeed', 'Chart Speed');
-createChart('#chart6', 'chartlat', 'Chart Latitude');
-createChart('#chart7', 'chartblon', 'Chart Longitude');
-        }
-</script>
+            
+
+    
+              
+    </script>
+</body>
+</html>
