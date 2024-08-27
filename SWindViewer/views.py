@@ -7,8 +7,7 @@ from rest_framework.response import Response
 
 class HomeView(View): 
 	def get(self, request, *args, **kwargs): 
-         return render(request, 'chartjs/index.html') 
-
+         return render(request, 'SolarWindData/index.html') 
 class ChartData(APIView):    
     authentication_classes = [] 
     permission_classes = [] 
@@ -55,7 +54,7 @@ def prepare_graph_data(mag_data, plasma_data):
                 graph_data['chartblon'].append(item[4] if item[4] is not None else 0)
                 graph_data['chartlat'].append(item[5] if item[5] is not None else 0)
                 graph_data['chartbt'].append(item[6] if item[6] is not None else 0)
-                graph_data['labels'].append(timestamp.strftime('%H:%M'))
+                graph_data['labels'].append(timestamp_str)
             except (IndexError, ValueError):
                 continue
 
@@ -70,15 +69,15 @@ def prepare_graph_data(mag_data, plasma_data):
                 temperature= item[3] if item[3] is not None else 0 
                 graph_data['chartdensity'].append(item[1] if item[1] is not None else 0)
                 graph_data['chartspeed'].append(item[2] if item[2] is not None else 0)
-                graph_data['chartemperature'].append(item[3] if item[3] is not None else 0)
+                graph_data['chartemperature'].append(item[3] if item[3] is not None else None)
                 if temperature is not None and isinstance(temperature, (int, float)):
                     scientific_notation = f"{float(temperature):.2e}"
                     graph_data['chartemperature'].append(scientific_notation)
                 else:
                     graph_data['chartemperature'].append(None)
                     # Añadir el tiempo al gráfico
-                    graph_data['labels'].append(timestamp.strftime('%H:%M'))
-                    graph_data['labels'].append(timestamp.strftime('%H:%M'))
+                    graph_data['labels'].append(timestamp)
+                    graph_data['labels'].append(timestamp)
             except (IndexError, ValueError):
                 continue
 

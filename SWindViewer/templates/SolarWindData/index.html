@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Time Solar Wind Viewer</title>
+
+<style>
+ /* CSS  */
+.page-title { 
+  text-align: center;
+  font-size: 2em; 
+  font-weight: bold;
+  color: #000000;
+  margin-top: 0px; 
+  margin-bottom: 10px;
+  background-color: #839192 ;
+  padding: 0px; 
+  font-family: Futura;
+}
+
+.chart {
+  width: 95%;
+  height: 75px; 
+  margin: 70px; 
+}
+
+.line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.axis text {
+  font-family: sans-serif, sans-serif;
+  font-size: 10px;
+  fill: black; 
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: black; 
+  stroke-width: 4;
+}
+</style>
+</head>
+<body>
+  
+    <div class="page-title">Solar Wind</div>
+    <hr />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
+    <!--moment.js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <!-- Create multiple divs for the charts -->
+    <div id="chart1" class="chart"></div>
+    <div id="chart2" class="chart"></div>
+    <div id="chart3" class="chart"></div>
+    <div id="chart4" class="chart"></div>
+    <div id="chart5" class="chart"></div>
+    <div id="chart6" class="chart"></div>
+
+
+<script>
+    // get data 
+  fetch('api')
+  .then(response => response.json())
+  .then(data => {
+    Chart(data);
+})
+   .catch(error => console.log('Error fetching data:', error));
+   
+   function Chart(data) {
+    //parse time
+    const parseTime = function(timeString) {
+        const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
+        return date.isValid() ? date.toDate() : null; 
+    };
+
+    //diffierentiate data in labels
+    const dataParsed = data.labels.slice(0, 1440).map((label, index) => {
+        const parsedDate = parseTime(label);
+        return {
+            date: parsedDate,
+            chartspeed: data.chartspeed?.[index] || 0,
+            chartemperature: data.chartemperature?.[index] || 0,
+            chartdensity: data.chartdensity?.[index] || 0,
+        };
+    }).filter((d) => Object.values(d).every((value) => value !== 0 && value !== null)); //filter the NaN values
+
+
+    function createChart(containerId, yAccessor,yLabel,titleText,lineColor) {
+        // select chart 
+        const chart = d3.select(containerId);
+        // margins of the page
+        const margin = { top: 20, right: 20, bottom: 70, left: 80 };
+        const width = chart.node().getBoundingClientRect().width - margin.left - margin.right; // width same as page
+        const height = 200 - margin.top - margin.bottom;
+    
+        //SVG
+        const svg = chart.append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+        
+        //scales
+        const xScale = d3.scaleTime()
+        .domain(d3.extent(dataParsed, d => d.date))
+        .range([0, width]);                   
+        
+        const yScale = d3.scaleLinear()
+        .domain([d3.min(dataParsed, d => d[yAccessor]), d3.max(dataParsed, d => d[yAccessor])] )
+        .range([height, 0])
+        .nice();
+
+        //line graph 
+        const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d[yAccessor]));
+
+        //zoom 
+        const zoom = d3.zoom()
+        .scaleExtent([1, 32])
+        .on('zoom', zoomed);
+        
+        function zoomed() {
+            const new_xScale = d3.event.transform.rescaleX(xScale);
+            svg.select('.x-axis')
+            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M'))); 
+            svg.select('.line')
+            .attr('d', line.x(d => new_xScale(d.date)));
+        }
+        
+        //apply zoom to the graph
+        svg.append('rect')
+        .attr('class', 'overlay')
+        .attr('width', width)
+        .attr('height', height)
+        .call(zoom);
+        
+        //clipping path to avoid elements spilling out
+        svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("x", 0)
+        .attr("width", width)
+        .attr("height", height);
+        
+        //X axis
+        svg.append("g")
+        .attr("class", "x-axis")    
+        .attr("clip-path", "url(#clip)") // add the clip path!
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+        //Y axis
+        svg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScale).ticks(6))
+        .call(g => g.selectAll(".tick line").clone()
+        .attr("x2", width - margin.left - margin.right)
+        .attr("stroke-opacity", 0.1));
+        
+        //Y label 
+        svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 20 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text(yLabel)
+        .style("fill", "#000000") // Estilo negro para el texto del eje Y
+        .style("font-weight", "bold"); // Make text bold
+        
+        //chart title
+        const title = svg.append("text")
+        .attr("x", margin.left - 40)
+        .attr("y", margin.top -18)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "#000000") // Dark gray color
+        .text(titleText);
+      
+        //append line
+        svg.append("path")
+        .data([dataParsed])
+        .attr("class", "line") 
+        .attr("clip-path", "url(#clip)") 
+        .attr("stroke", lineColor) 
+        .attr("d", line(dataParsed));
+        
+    }   
+    
+    createChart('#chart1', 'chartspeed','(km/s)','Speed','#1a5276 ');
+    createChart('#chart2', 'chartdensity','(1/cm^3)','Density','#a9cce3');
+    createChart('#chart3', 'chartemperature','K','Temperature','#2980b9');
+}
+
+</script>    
+</body>
+</html>

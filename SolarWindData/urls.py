@@ -1,5 +1,5 @@
 """
-URL configuration for prueba project.
+URL configuration for Solar Wind Data project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
@@ -16,10 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from chartjs import views
+from SWindViewer import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.HomeView.as_view()), 
-    # path('test-api', views.get_data), 
+    path('', views.HomeView.as_view()),  
     path('api', views.ChartData.as_view()), 
 ] 

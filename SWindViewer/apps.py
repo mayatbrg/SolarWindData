@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ChartjsConfig(AppConfig):
+class SWindViewerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'chartjs'
+    name = 'SWindViewer'
