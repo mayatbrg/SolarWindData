@@ -7,23 +7,111 @@
 
 <style>
  /* CSS  */
-.page-title { 
-  text-align: center;
-  font-size: 2em; 
-  font-weight: bold;
-  color: #000000;
-  margin-top: 0px; 
-  margin-bottom: 5px;
-  background-color: #839192 ;
+ html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0px;
+}
+ .webcontainer {
   padding: 0px; 
-  font-family: Futura;
+  padding-left: 0px;
+  padding-right: 0px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 0.4fr 1.6fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "TITLE TITLE RSG"
+    "graph graph info"
+    "all-graphs all-graphs all-graphs";
+
 }
 
-.chart {
-  width: 100%;
-  height: 75px; 
-  margin: 75px; 
+.TITLE {  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "maintitle maintitle maintitle"
+    "maintitle maintitle maintitle"
+    "date date date";
+  grid-area: TITLE;
+  background-color: #D8BFD8  ;
+  
 }
+
+.maintitle { grid-area: maintitle;
+  text-align: center;
+  font-size: 3em; 
+  color: #000000;
+  margin-top: 0px; 
+  margin-bottom: 5px; 
+  font-family: Futura;  
+ }
+.date { grid-area: date;
+background-color:#FFF8DC  }
+
+.RSG { grid-area: RSG;
+background-color:#FFE4E1  }
+
+.graph { grid-area: graph;
+  height: 100%; /* Ajusta la altura al tamaño del contenedor */
+  width: 100%; /* Ajusta el ancho al tamaño del contenedor */
+  overflow: hidden; /* Evita que se desborde el contenido */
+ background-color:#FFF0F5}
+
+ .titlegraph {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      cursor: pointer;
+    }
+
+.info {  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    ". . ."
+    ". . ."
+    ". . .";
+  grid-area: info;
+  background-color:#FFDAB9
+}
+
+.all-graphs {  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1.5fr 0.5fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-area: all-graphs;height: 100%; /* Ajusta la altura al tamaño del contenedor */
+  width: 100%; /* Ajusta el ancho al tamaño del contenedor */
+  overflow: hidden; /* Evita que se desborde el contenido */ 
+}
+
+.small-graphs { grid-area: 1 / 1 / 3 / 4; }
+
+.extra-info { grid-area: 3 / 1 / 4 / 4;
+ background-color:#FFE4E1 }
+
+.graph-1 { grid-area: 1 / 1 / 3 / 2;
+ background-color:#FFDAB9}
+
+.graph-2 { grid-area: 1 / 2 / 3 / 3;
+ background-color:#D8BFD8 }
+
+.graph-3 { grid-area: 1 / 3 / 3 / 4;
+ background-color:#FFF8DC }
+
+ .title {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      cursor: pointer;
+    }
 
 .line {
   fill: none;
@@ -51,9 +139,6 @@
 </style>
 </head>
 <body>
-  
-    <div class="page-title">Solar Wind</div>
-    <hr />
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
     <!--moment.js-->
@@ -64,18 +149,31 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v4.js"></script>
-    <!-- Create multiple divs for the charts -->
-    <div id="chart1" class="chart"></div>
-    <div id="chart2" class="chart"></div>
-    <div id="chart3" class="chart"></div>
-    <div id="chart4" class="chart"></div>
-    <div id="chart5" class="chart"></div>
-    <div id="chart6" class="chart"></div>
 
+    <div class="webcontainer" style="height: 100vh; width: 100vw;">
+      <div class="TITLE">
+        <div class="maintitle">Real Time Solar Wind Data</div>
+        <div class="date">aquí la fecha/hora/min</div>
+      </div>
+      <div class="RSG">RSG como en NOAA</div>
+      <div id=main-chart class="graph">
+      <div class="titlegraph">Speed</div>
+    </div>
+      <div class="info">info sobre el gráfico en display</div>
+      <div class="all-graphs">
+        <div id="chart1" class="graph-1 small-graphs">
+          <div class="title">Density</div>
+        </div>
+        <div id="chart2" class="graph-2 small-graphs">
+          <div class="title">Temperature</div>
+        </div>
+        <div id="chart3" class="graph-3 small-graphs">
+          <div class="title">Bx</div>
+    </div>
 
 <script>
     // get data 
-  fetch('api')
+  fetch('/api')
   .then(response => response.json())
   .then(data => {
     Chart(data);
@@ -84,55 +182,83 @@
    
    function Chart(data) {
     //parse time
-    const parseTime = function(timeString) {
-        const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
-        return date.isValid() ? date.toDate() : null; 
-    };
+        const parseTime = function(timeString) {
+           const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
+           return date.isValid() ? date.toDate() : null;  
+        };
 
     //diffierentiate data in labels
-    const dataParsed = data.labels.map((label, index) => {
-        const parsedDate = parseTime(label);
+    const PlasmaData = data.labelsplasma.map((label, index) => {
+        const PlasmaDate = parseTime(label);
         return {
-            date: parsedDate,
+            date: PlasmaDate,
             chartspeed: data.chartspeed?.[index] || 0,
             chartemperature: data.chartemperature?.[index] || 0,
             chartdensity: data.chartdensity?.[index] || 0,
         };
-    }).filter((d) => Object.values(d).every((value) => value !== 0 && value !== null)); //filter the NaN values
+  }).filter((d) => {
+    // Filtrar solo si los valores numéricos son `null` o `NaN`, pero mantener la fecha
+    return [d.chartspeed, d.chartemperature, d.chartdensity].some(value => !isNaN(value));
+});
 
-    console.log("Raw Data:", data);
-console.log("Data Parsed:", dataParsed);
+console.log("Raw Data:", data);
+console.log("Data Parsed:", PlasmaData);
 
-    function createChart(containerId, yAccessor,yLabel,titleText,lineColor) {
-        // select chart 
-        const chart = d3.select(containerId);
-        // margins of the page
-        const margin = { top: 20, right: 10, bottom: 70, left: 30 };
-        const width = chart.node().getBoundingClientRect().width - margin.right; // width same as page
-        const height = 200 - margin.top - margin.bottom;
-    
+//diffierentiate data in labels
+const MagData = data.labelsmag.map((label, index) => {
+        const MagDate = parseTime(label);
+        return {
+            date: MagDate,
+            chartbx: data.chartbx?.[index] || 0,
+            chartby: data.chartby?.[index] || 0,
+            chartbz: data.chartbz?.[index] || 0,
+        };
+  }).filter((d) => {
+    // Filtrar solo si los valores numéricos son `null` o `NaN`, pero mantener la fecha
+    return [d.chartbx, d.chartby, d.chartbz,d.chartblon,d.chartlat,d.chartbt].some(value => !isNaN(value));
+});
+
+console.log("Data Parsed:", MagData);
+
+    function createChart(containerId,dataSet, yAccessor,yLabel,titleText,lineColor) {
+
+      // select chart 
+       const chart = d3.select(containerId);
+      // margins of the page
+       const margin = { top: -50, right: 0, bottom: -500, left:30 };
+       const width = 364; 
+       const height = 1067;
+
         //SVG
         const svg = chart.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
+        //.attr('width', width )
+        .attr('style','width:100%; height:100%')
+        //.attr('height', height)
         .append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
-        
+             
         //scales
         const xScale = d3.scaleTime()
-        .domain(d3.extent(dataParsed, d => d.date))
-        .range([0, width]);                   
-        
+        .domain(d3.extent(dataSet, d => d.date))
+        .range([0, width]);  
+
+        const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => d[yAccessor]);
+        const maxY = d3.max(dataSet, d => d[yAccessor]);
+
         const yScale = d3.scaleLinear()
-        .domain([d3.min(dataParsed, d => d[yAccessor]), d3.max(dataParsed, d => d[yAccessor])] )
+        .domain([minY, maxY])
         .range([height, 0])
         .nice();
+       
+        console.log("Ymin",yAccessor,minY)
+        console.log("Ymax",yAccessor,maxY)
 
         //line graph 
         const line = d3.line()
         .x(d => xScale(d.date))
-        .y(d => yScale(d[yAccessor]));
-
+        .y(d => yScale(d[yAccessor]))
+        .defined(d => d[yAccessor] !== 0 && d[yAccessor] !== null && !isNaN(d[yAccessor]) || (d[yAccessor] < 0 || d[yAccessor] > 0));
+          
         //zoom 
         const zoom = d3.zoom()
         .scaleExtent([1, 32])
@@ -149,8 +275,8 @@ console.log("Data Parsed:", dataParsed);
         //apply zoom to the graph
         svg.append('rect')
         .attr('class', 'overlay')
-        .attr('width', width)
-        .attr('height', height)
+        //.attr('width', width)
+        //.attr('height', height)
         .call(zoom);
         
         //clipping path to avoid elements spilling out
@@ -165,22 +291,22 @@ console.log("Data Parsed:", dataParsed);
         svg.append("g")
         .attr("class", "x-axis")    
         .attr("clip-path", "url(#clip)") // add the clip path!
-        .attr("transform", `translate(0,${height})`)
+        //.attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
         //Y axis
         svg.append("g")
         .attr("class", "y-axis")
-        .call(d3.axisLeft(yScale).ticks(6))
+        .call(d3.axisLeft(yScale).ticks(3))
         .call(g => g.selectAll(".tick line").clone()
         .attr("x2", width - margin.left - margin.right)
         .attr("stroke-opacity", 0.1));
-        
+       
         //Y label 
         svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 5 )
-        .attr("x", 0 - (height / 2))
+        .attr("y", 2 )
+        .attr("x", 2 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text(yLabel)
@@ -188,28 +314,32 @@ console.log("Data Parsed:", dataParsed);
         .style("font-weight", "bold"); // Make text bold
         
         //chart title
-        const title = svg.append("text")
-        .attr("x", margin.left - 40)
-        .attr("y", margin.top -18)
-        .attr("text-anchor", "middle")
-        .attr("font-size", "16px")
-        .attr("font-weight", "bold")
-        .attr("fill", "#000000") // Dark gray color
-        .text(titleText);
+        //const title = svg.append("text")
+        //.attr("x", margin.left)
+        //.attr("y", margin.top -25)
+        //.attr("text-anchor", "middle")
+        //.attr("font-size", "10px")
+        //.attr("font-weight", "bold")
+        //.attr("fill", "#000000") // Dark gray color
+        //.text(titleText);
       
         //append line
         svg.append("path")
-        .data([dataParsed])
+        .data([dataSet])
         .attr("class", "line") 
         .attr("clip-path", "url(#clip)") 
         .attr("stroke", lineColor) 
-        .attr("d", line(dataParsed));
+        .attr("d", line(dataSet));
         
-    }   
-    
-    createChart('#chart1', 'chartspeed','(km/s)','Speed','#1a5276 ');
-    createChart('#chart2', 'chartdensity','(1/cm^3)','Density','#a9cce3');
-    createChart('#chart3', 'chartemperature','K','Temperature','#2980b9');
+    }  
+
+   // Create initial main chart
+   createChart('#main-chart', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#1a5276');
+
+// Create the smaller charts
+createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#a9cce3');
+    createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#2980b9');
+    createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#e74c3c');
 }
 
 </script>    

@@ -19,6 +19,6 @@ from django.urls import path
 from SWindViewer import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.HomeView.as_view()),  
-    path('api', views.ChartData.as_view()), 
+    path('', views.HomeView.as_view(), name='home'),  
+    path('api', views.ChartData.as_view(), name= 'chart_data'), 
 ] 
