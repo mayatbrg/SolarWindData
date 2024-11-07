@@ -138,6 +138,19 @@ background-color:#FFE4E1  }
   stroke: black; 
   stroke-width: 4;
 }
+.tooltip {
+            position: absolute;
+            text-align: center;
+            width: 60px;
+            padding: 5px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0; 
+}
+
 </style>
 </head>
 <body>
@@ -152,6 +165,8 @@ background-color:#FFE4E1  }
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v4.js"></script>
+    <!-- Load rickshaw .js -->
+    <script src="../rickshaw.js"></script>
 
     <div class="webcontainer" style="height: 100vh; width: 100vw;">
       <div class="TITLE">
@@ -161,6 +176,7 @@ background-color:#FFE4E1  }
       <div class="RSG">RSG como en NOAA</div>
       <div id=main-chart class="graph">
       <div class="titlegraph">Speed</div>
+      <div class="tooltip"></div>
     </div>
       <div class="info">info sobre el gráfico en display</div>
       <div class="all-graphs">
@@ -273,6 +289,10 @@ console.log("Data Parsed:", MagData);
             .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M'))); 
             svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
+
+            svg.selectAll('.dot')
+        .attr('cx', d => new_xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor]));
         }
         
         //apply zoom to the graph
@@ -280,6 +300,7 @@ console.log("Data Parsed:", MagData);
         .attr('class', 'overlay')
         //.attr('width', width)
         //.attr('height', height)
+        .style('pointer-events', 'all')
         .call(zoom);
         
         //clipping path to avoid elements spilling out
@@ -333,7 +354,48 @@ console.log("Data Parsed:", MagData);
         .attr("clip-path", "url(#clip)") 
         .attr("stroke", lineColor) 
         .attr("d", line(dataSet));
+ 
+
+      // Tooltip y resaltado solo con D3
+const tooltip = d3.select('.tooltip');
+
+// Configuración de puntos en la línea con eventos para resaltado
+svg.selectAll('.dot')
+    .data(dataSet)
+    .enter().append('circle')
+    .attr('class', 'dot')
+    .attr('cx', d => xScale(d.date))
+    .attr('cy', d => yScale(d[yAccessor]))  // Usa yAccessor en lugar de 'value'
+    .attr('r', 5)
+    .attr('fill', 'steelblue')
+    .on('mouseover', function(event, d) {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr('fill', 'orange')  // Cambia de color al resaltar
+            .attr('r', 7);           // Aumenta el tamaño para resaltar
         
+        tooltip.transition()
+            .duration(200)
+            .style('opacity', .9);
+        
+        tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
+            .style('left', (event.pageX + 5) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+    })
+    .on('mouseout', function() {
+        d3.select(this)
+            .transition()
+            .duration(500)
+            .attr('fill', 'steelblue')  // Vuelve al color original
+            .attr('r', 5);              // Vuelve al tamaño original
+        
+        tooltip.transition()
+            .duration(500)
+            .style('opacity', 0);
+    });
+
+
     }  
 
    // Create initial main chart

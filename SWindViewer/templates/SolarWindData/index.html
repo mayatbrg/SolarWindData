@@ -1,27 +1,27 @@
 <html>
   <head>
-    <title>Real Time Solar Wind Viewer</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet" type="text/css">
 <style>
    /* CSS  */
    body {
   font: 300 13px/18px 'Helvetica Neue', sans-serif;
-  color: #c9a3f7;
+  color: #000000;
   margin: 0px auto;
-  width: 900px;
   background-color: #ffffff;
 }
 
 .TITLE {  
   gap: 0px 0px;
-  background-color: #D8BFD8  ;
+  background-color: #000000  ;
   
 }
 
+.date { text-align:left;
+}
 .maintitle {
   text-align: center;
-  font-size: 3em; 
+  font-size: 2em; 
   color: #000000;
   margin-top: 0px; 
   margin-bottom: 5px; 
@@ -37,13 +37,15 @@
     }
 
 
-.all-graphs {  
-  width: 100%; /* Ajusta el ancho al tamaño del contenedor */
+.all-graphs { 
   overflow: hidden; /* Evita que se desborde el contenido */ 
 }
 
+.small-graphs {height:150; 
+  width:1320;  }
+
  .graph-0 {
-    background-color:rgba(235, 208, 255, 0.5);}
+    background-color:rgba(255, 255, 255, 0.221);}
 
 .graph-1 {
  background-color:rgba(203, 201, 255,0.5);}
@@ -56,7 +58,7 @@
 
  .title {
       width: 100%;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(230, 214, 246, 0.169);
       text-align: center;
       cursor: pointer;
     }
@@ -73,7 +75,7 @@
 
 .axis text {
   font-family: sans-serif, sans-serif;
-  font-size: 15px;
+  font-size: 13px;
   fill: black; 
 }
 
@@ -84,181 +86,42 @@
   stroke: rgb(160, 218, 84); 
   stroke-width: 4;
 }
-area {
-  fill: rgba(200,200,200,0.1);
-}
-.area.CHI {
-  fill: rgba(62,133,162,0.58);
-}
-.area.CGY {
-  fill: rgba(236,163,30,0.58);
-}
 .tooltip {
-  position: absolute;
-  padding: 4px 15px;
-  font-size: 10px;
-  color: #000;
-  height: 0px;
-  border: 1px solid;
-  border-radius: 2px;
-  height: auto;
-  width: auto;
-}
-.tooltip.hidden {
-  overflow: hidden;
-  opacity: 0;
-  padding: 0px;
-  border: 0px;
-  width: 0px;
-  height: 0px;
-}
-.tooltip.chart0 {
-  background-color: #93BFD1;
-  border-color: #3E85A2;
-}
-.tooltip.chart1 {
-  background-color: #FDEFD5;
-  border-color: #ECA31E;
-}
-.tooltip.chart2 {
-  background-color: #d5fdd9;
-  border-color: #036b1d;
-}
-.tooltip.chart3 {
-  background-color: #c3acf5;
-  border-color: #7939a7;
-}
-path.series {
-  stroke-width: 4;
-  fill: none;
-}
-path.chart0 {
-  stroke: #6DABC4;
-}
-path.chart1 {
-  stroke: #FFC967;
-}
-path.chart2 {
-  stroke: #74c2ef;
-}
-path.chart3 {
-  stroke: #fbb9e0;
-}
-.linedot {
-  stroke-width: 1;
-  fill: #190b6b;
-}
-.linedot.active {
-  stroke-width: 2;
-}
-.linedot.chart0 {
-  stroke: #3E85A2;
-}
-.linedot.chart1 {
-  stroke: #ECA31E;
-}
-.linedot.chart2 {
-  stroke: #175670;
-  fill: #3E85A2;
-}
-.linedot.chart3 {
-  stroke: #AC7209;
-  fill: #ECA31E;
-}
-.linedot.graph text {
-  fill: #fff;
-  stroke: #fff;
-  stroke-width: 1px;
-  font-size: 10px;
-}
-.line-helper {
-  stroke-width: 1px;
-  opacity: 0.4;
-}
-.line-helper.chart0 {
-  stroke: #ECA31E;
-}
-.line-helper.chart1 {
-  stroke: #3E85A2;
-}
-.line-helper.chart2 {
-  stroke: #3ea240;
-}
-.line-helper.chart3 {
-  stroke: #d9afe7;
-}
-.axis {
-  shape-rendering: crispEdges;
-}
-.x.axis line {
-  stroke: rgba(150,150,150,0.15);
-}
-.x.axis .minor {
-  stroke-opacity: .5;
-}
-.x.axis path {
-  display: none;
-}
-.y.axis line {
-  fill: none;
-  stroke: #999;
-}
-.y.axis path {
-  display: none;
-}
-.tick text {
-  font-size: 11px;
-  color: #333;
-}
-.legend text {
-  font-size: 9px;
-  fill: #999;
-  font-weight: 600;
-}
-.legend .chart0 {
-  stroke: #3E85A2;
-  fill: #6DABC4;
-}
-.legend .chart1 {
-  stroke: #ECA31E;
-  fill: #FFC967;
-}
-.legend .chart2 {
-  stroke: #ECA31E;
-  fill: #FFC967;
-}
-.legend .chart3 {
-  stroke: #ECA31E;
-  fill: #FFC967;
+            position: absolute;
+            text-align: center;
+            width: 10px;
+            padding: 1px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 1px;
+            pointer-events: none;
+            opacity: 0; 
 }
 
       </style>
   </head>
   <body>
-  
-  <div id="content">
-
-
-  <div id="shot-chart"></div>
-  <div id="shot-details"></div>
-
-    <div class="TITLE">
-      <div class="maintitle">Real Time Solar Wind Data</div>
-    </div>
-  </div>
+    <div class="body" style="height: 100vh; width: 100vw;">
+      <div class="TITLE">
+        <div class="maintitle">Real Time Solar Wind Data</div>
+        <div class="date" id="currentDate" ></div>
+      </div>
+      <div class="all-graphs">
+        <div id="chart1" class="graph-1 small-graphs">
+          <div class="title">Density</div>
+          <div class="tooltip"></div>
+        </div>
         <div id="chart0" class="graph-0 small-graphs">
-            <div class="title">Speed</div>
-          </div>
-      <div id="chart1" class="graph-1 small-graphs">
-        <div class="title">Density</div>
-      </div>
-      <div id="chart2" class="graph-2 small-graphs">
-        <div class="title">Temperature</div>
-      </div>
-      <div id="chart3" class="graph-3 small-graphs">
-        <div class="title">Bx</div>
-  </div>
-</div>
+          <div class="titlegraph">Speed</div>
+          <div class="tooltip"></div>
+        </div>
+        <div id="chart2" class="graph-2 small-graphs">
+          <div class="title">Temperature</div>
+        </div>
+        <div id="chart3" class="graph-3 small-graphs">
+          <div class="title">Bx</div>
+    </div>
   <!--moment.js-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <!-- jQuery library -->
@@ -268,13 +131,37 @@ path.chart3 {
   <!-- Load d3.js -->
   <script src="https://d3js.org/d3.v4.js"></script>
 <script>
-     // get data 
-  fetch('/api')
-  .then(response => response.json())
-  .then(data => {
-    graph(data);
-})
-   .catch(error => console.log('Error fetching data:', error));
+
+
+let isFirstLoad = true; // Estado para saber si es la primera carga
+
+// Function to fetch data and update the graph
+function fetchData() {
+    fetch('/api')
+        .then(response => response.json())
+        .then(data => {  
+          if (isFirstLoad) {
+                graph(data); // Llama a graph(data) solo en la primera carga
+                isFirstLoad = false; // Cambia el estado después de la primera carga
+            } else {
+                updateChart(data); // Actualiza los gráficos con nuevos datos
+            }
+        })
+        .catch(error => console.log('Error fetching data:', error));
+}
+
+// Call fetchData every 2min (120000 ms)
+setInterval(fetchData, 120000);
+
+// Initial call to fetch data immediately on page load
+fetchData();
+ 
+//lugar dde se va a guardar la data 
+let currentData = {
+    PlasmaData: [],
+    MagData: []
+};
+
    function graph(data) {
     //parse time
         const parseTime = function(timeString) {
@@ -292,7 +179,7 @@ path.chart3 {
             chartdensity: data.chartdensity?.[index] || 0,
         };
   }).filter((d) => {
-    // Filtrar solo si los valores numéricos son `null` o `NaN`, pero mantener la fecha
+    // Filtrar solo si los valores numéricos son null o NaN, pero mantener la fecha
     return [d.chartspeed, d.chartemperature, d.chartdensity].some(value => !isNaN(value));
 });
 
@@ -306,36 +193,59 @@ const MagData = data.labelsmag.map((label, index) => {
             chartbz: data.chartbz?.[index] || 0,
         };
   }).filter((d) => {
-    // Filtrar solo si los valores numéricos son `null` o `NaN`, pero mantener la fecha
+    // Filtrar solo si los valores numéricos son null o NaN, pero mantener la fecha
     return [d.chartbx, d.chartby, d.chartbz,d.chartblon,d.chartlat,d.chartbt].some(value => !isNaN(value));
-}); 
+  });
+
+    if (isFirstLoad) {
+        // Si es la primera vez, guarda todos los datos iterados en currentData
+        currentData.PlasmaData = PlasmaData;
+        currentData.MagData = MagData;
+
+        createChart('#chart0', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#8e44ad');
+
+        createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#673ab7 ');
+
+        createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#00796b  ');
+
+        createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#f4511e');
+
+    } else {
+        // Si no es la primera vez, guarda solo los últimos 5 datos en currentData
+        const lastPlasmaData = PlasmaData.slice(-5);
+        const lastMagData = MagData.slice(-5);
+
+        currentData.PlasmaData = [...currentData.PlasmaData, ...lastPlasmaData];
+        currentData.MagData = [...currentData.MagData, ...lastMagData];
+
+       if (currentData.PlasmaData.length > 1440) {
+            currentData.PlasmaData = currentData.PlasmaData.slice(-1440);
+        }
+        if (currentData.MagData.length > 1440) {
+            currentData.MagData = currentData.MagData.slice(-1440);
+        }
+    }
+  }
+
+console.log(data)
+console.log(currentData)
 
 
 function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
     // select chart 
     const chart = d3.select(containerId);
-
-    var buildLegend = {
-    legendItemCount: 0,
-    base: function(chart, legendItemSpacing) {
-      this.legendItemSpacing = legendItemSpacing;
-      this.legend = chart.shotChart.append('g')
-        .attr("class","legend")
-        .attr("transform", "translate(" + (chart.width - 100) + "," + (-chart.margins[0] + 30) + ")");
-    },
-}
-      
+     
     // margins of the page
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
-    const width = 800 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const margin = { top:25, right: 10, bottom: 100, left: 60 };
+    const width = 1240 - margin.left - margin.right;
+    const height =180 - margin.top - margin.bottom;
 
     //SVG
     const svg = chart.append('svg')
-        .attr('width', '100%')
-        .attr('height', '100%')
+        .attr('width','100%')
+        .attr('height','100%')
         .append('g')
-        .attr('transform', `translate(100, 100)`);
+        .attr('transform',`translate(${margin.left}, ${margin.top})`);
 
     //scales
     const xScale = d3.scaleTime()
@@ -368,7 +278,10 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
 
     //zoom 
     const zoom = d3.zoom()
-        .scaleExtent([1, 512])
+        //.scaleExtent([1, 512])
+        .scaleExtent([1, 10])
+    .translateExtent([[0, 0], [width, height]])
+    .extent([[0, 0], [width, height]])
         .on('zoom', zoomed);
 
     function zoomed() {
@@ -377,6 +290,11 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
             .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
         svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
+
+            
+            svg.selectAll('.dot')
+        .attr('cx', d => new_xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor]));
     }
 
     //apply zoom to the graph
@@ -384,6 +302,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr('class', 'overlay')
         .attr('width', width)
         .attr('height', height)
+        .style('pointer-events', 'all')
         .call(zoom);
 
     //clipping path to avoid elements spilling out
@@ -398,14 +317,14 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
     svg.append("g")
         .attr("class", "x-axis")
         .attr("clip-path", "url(#clip)")
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 1)
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
     //Y axis
     svg.append("g")
         .attr("class", "y-axis")
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 1)
         .call(d3.axisLeft(yScale)
   .ticks(4)
   .tickFormat(function(d) {
@@ -415,17 +334,14 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .call(g => g.selectAll(".tick line").clone()
             .attr("x2", width )
             .attr("stroke-opacity", 0.1));
-            var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
+      
 
     //Y label 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left - 10)
+        .attr("y", -margin.left +10)
         .attr("x", -height / 2)
-        .attr("dy", "1em")
+        .attr("dy", "0.5em")
         .style("text-anchor", "middle")
         .text(yLabel)
         .style("fill", "#000000") // Estilo negro para el texto del eje Y
@@ -433,10 +349,10 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
 
     //chart title
     svg.append("text")
-        .attr("x", width-720)
-        .attr("y", -margin.top / 2)
+        .attr("x", width-1100)
+        .attr("y", (-margin.top/2) +23 )
         .attr("text-anchor", "middle")
-        .attr("font-size", "16px")
+        .attr("font-size", "15px")
         .attr("font-weight", "bold")
         .attr("fill", "#000000") // Dark gray color
         .text(titleText);
@@ -449,114 +365,168 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr("stroke", lineColor)
         .attr("stroke-width", 0.2)
         .attr("d", line(dataSet));
-
-    //shows data one by one 
-      svg.selectAll(".linedot." + containerId)     
-        .data(dataSet)
-        .enter()
-        .append("g")
-        .attr("class", "linedot"+ containerId )
-        .append("circle")
-        .attr("cx", d => xScale(d.date))
-        .attr("cy", d => yScale(d[yAccessor]))
-        .attr("r", 1)
-        .on("mouseover", function(d, i) {
-          var circle = d3.select(this);
-          handleMouseEvents.over(circle, d,containerId,svg);
-        })    
-        .on("mouseleave", function(event, d) {
-          var circle = d3.select(this);
-          handleMouseEvents.leave(circle, function(event) { return (d[yAccessor] === "valor:") ? 6 : 4 });
-        })
-        .on("click", function(d, i) {
-          var circle = d3.select(this);
-          handleMouseEvents.showDetail(circle, d);
-        });
-        
-      }
+ 
+      // Puntos y tooltip
+const tooltip = d3.select('body').append('div').attr('class', 'tooltip').style('opacity', 0);
+svg.selectAll('.dot')
+    .data(dataSet)
+    .enter().append('circle')
+    .attr('class', 'dot')
+    .attr('cx', d => xScale(d.date))
+    .attr('cy', d => yScale(d[yAccessor]))
+    .attr('r', 1)
+    .attr('fill', 'steelblue')
+    .on('mouseover', function(event, d) {
+        d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 3);
+        tooltip.transition().duration(200).style('opacity', 0.9);
+        tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
+            .style('left', (event.pageX + 5) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+    })
+    .on('mouseout', function() {
+        d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 5);
+        tooltip.transition().duration(200).style('opacity', 0);
+    });
     
-      var handleMouseEvents = {
-        createToolTipDiv: function(duration) {
-        this.transitionDuration = duration;
-        var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-         },
+      }
 
-     //Handle the mouseover event for circles
+// Función para actualizar la fecha y hora
+function updateDate() {
+    const now = new Date();
+    const formattedDate = now.toLocaleString(); // Formato de fecha y hora
+    d3.select('#currentDate') // Selecciona el elemento con id 'currentDate'
+        .text(formattedDate); // Actualiza el texto
+}
 
-    over: function(elem,data,containerId,chart) {
-      d3.select("body").style("cursor", "pointer");
-      elem.transition().duration(200)
-        .attr("r", (elem.attr("r") * 1.4));
-      this.showToolTip(data,containerId);
-      this.drawLinesToAxes(elem, "x", 0 , containerId);
-      this.drawLinesToAxes(elem, "y", chart.height, containerId);
-    },
-      //Append text element to the circle's parent g element
-    //elem.parent().append("text")
-     // .attr("x", elem.attr("cx"))
-      //.attr("y", elem.attr("cy"))
-      //.attr("dy", "-0.5em")
-      //.text(data[yAccessor]);
-  //},
+// Llama a la función al cargar la página
+updateDate();
 
+// Actualiza cada minuto (60000 ms)
+setInterval(updateDate, 1000);
 
-    // Handle the mouseleave event when exiting a circle
-     leave: function(elem, r) {
-      d3.select("body").style("cursor", "default");
-      elem.transition().duration(200)
-        .attr("r", r);
-      d3.select('.tooltip').transition()
-        .duration(this.transitionDuration)
-        .style("opacity", 0);
-      setTimeout(function() {
-        d3.select(".tooltip").classed("hidden", true);
-      }, this.transitionDuration)
-      d3.selectAll(".line-helper").remove();
-    },
-      // Remove the text element when the mouse leaves the circle
-    //elem.parent().select("text").remove();
-   // },
+// Función para actualizar el gráfico
+function updateChart(data) {
+  function updateChart(data) {
+    // Selecciona los elementos del gráfico de D3.js y actualiza sus datos
+    
+    // Actualiza la escala de tiempo con los nuevos datos
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(currentData.PlasmaData, d => d.date))
+        .range([0, width]);
 
-    //Show tooltip when user is hovering on a circle
-     showToolTip: function(data,containerId) {
-      // Crea un elemento div con la clase tooltip si no existe
-  if (!d3.select(".tooltip").node()) {
-    d3.select("body").append("div")
-      .attr("class", "tooltip");
-  }
+    // Actualiza la escala de valores con los nuevos datos (ejemplo para chartspeed)
+    const yScalePlasma = d3.scaleLinear()
+        .domain([0, d3.max(currentData.PlasmaData, d => d.chartspeed)])
+        .range([height, 0]);
 
-  // Muestra el tooltip
-  d3.select(".tooltip")
-    .classed("hidden", false)
-    .html("<b>" + (data[yAccessor]).toUpperCase() + "</b><br />" + data.date)
-    .style("left", (d3.event.pageX + 10) + "px")
-    .style("top", (d3.event.pageY - 40) + "px");
-  d3.select(".tooltip")
-    .transition()
-    .duration(this.transitionDuration)
-    .style("opacity", 0.9)
-    .attr("class", function() { return "tooltip " + containerId; });
-      
-},
+    const yScaleMag = d3.scaleLinear()
+        .domain([d3.min(currentData.MagData, d => d.chartbx), d3.max(currentData.MagData, d => d.chartbx)])
+        .range([height, 0]);
 
-  }
-  
-// Create initial main chart
-createChart('#chart0', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#8e44ad');
+    // Selecciona y actualiza la línea del gráfico de PlasmaData
+    const plasmaLine = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScalePlasma(d.chartspeed));
 
-// Create the smaller charts
-createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#673ab7 ');
+    d3.select(".plasma-line")
+        .datum(currentData.PlasmaData)
+        .transition()
+        .duration(750)
+        .attr("d", plasmaLine);
 
+    // Selecciona y actualiza la línea del gráfico de MagData
+    const magLine = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScaleMag(d.chartbx));
 
-createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#00796b  ');
+    d3.select(".mag-line")
+        .datum(currentData.MagData)
+        .transition()
+        .duration(750)
+        .attr("d", magLine);
 
+    // Actualiza los ejes con las nuevas escalas
+    d3.select(".x-axis")
+        .transition()
+        .duration(750)
+        .call(d3.axisBottom(xScale));
 
-createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#f4511e');
+    d3.select(".y-axis-plasma")
+        .transition()
+        .duration(750)
+        .call(d3.axisLeft(yScalePlasma));
 
+    d3.select(".y-axis-mag")
+        .transition()
+        .duration(750)
+        .call(d3.axisLeft(yScaleMag));
+}
 
-   }
+// Inicializa los gráficos en la función graph
+function initializeGraph() {
+    // Aquí defines las escalas y ejes iniciales
+    const xScale = d3.scaleTime()
+        .range([0, width]);
+
+    const yScalePlasma = d3.scaleLinear()
+        .range([height, 0]);
+
+    const yScaleMag = d3.scaleLinear()
+        .range([height, 0]);
+
+    // Define las líneas iniciales
+    const plasmaLine = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScalePlasma(d.chartspeed));
+
+    const magLine = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScaleMag(d.chartbx));
+
+    // Crea los elementos SVG y añade las líneas y ejes
+    const svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Añade la línea de PlasmaData
+    svg.append("path")
+        .datum(currentData.PlasmaData)
+        .attr("class", "plasma-line")
+        .attr("d", plasmaLine);
+
+    // Añade la línea de MagData
+    svg.append("path")
+        .datum(currentData.MagData)
+        .attr("class", "mag-line")
+        .attr("d", magLine);
+
+    // Añade los ejes
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(xScale));
+
+    svg.append("g")
+        .attr("class", "y-axis-plasma")
+        .call(d3.axisLeft(yScalePlasma));
+
+    svg.append("g")
+        .attr("class", "y-axis-mag")
+        .call(d3.axisLeft(yScaleMag));
+}
+
+// Llama a la función para inicializar el gráfico en graph
+function graph(data) {
+    // Tu lógica existente de graph
+
+    if (isFirstLoad) {
+        initializeGraph();
+    }
+}
+
+}
 
 </script>
   </body>
