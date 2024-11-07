@@ -1,48 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
     <title>Real Time Solar Wind Viewer</title>
-
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet" type="text/css">
 <style>
- /* CSS  */
- html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0px;
-}
- .webcontainer {
-  padding: 0px; 
-  padding-left: 0px;
-  padding-right: 0px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 0.4fr 1.6fr 1fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-template-areas:
-    "TITLE TITLE RSG"
-    "graph graph info"
-    "all-graphs all-graphs all-graphs";
-
+   /* CSS  */
+   body {
+  font: 300 13px/18px 'Helvetica Neue', sans-serif;
+  color: #c9a3f7;
+  margin: 0px auto;
+  width: 900px;
+  background-color: #ffffff;
 }
 
-.TITLE {  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+.TITLE {  
   gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-template-areas:
-    "maintitle maintitle maintitle"
-    "maintitle maintitle maintitle"
-    "date date date";
-  grid-area: TITLE;
   background-color: #D8BFD8  ;
   
 }
 
-.maintitle { grid-area: maintitle;
+.maintitle {
   text-align: center;
   font-size: 3em; 
   color: #000000;
@@ -50,17 +27,7 @@
   margin-bottom: 5px; 
   font-family: Futura;  
  }
-.date { grid-area: date;
-background-color:#FFF8DC  }
 
-.RSG { grid-area: RSG;
-background-color:#FFE4E1  }
-
-.graph { grid-area: graph;
-  height: 100%; /* Ajusta la altura al tamaño del contenedor */
-  width: 100%; /* Ajusta el ancho al tamaño del contenedor */
-  overflow: hidden; /* Evita que se desborde el contenido */
- background-color:#FFF0F5}
 
  .titlegraph {
       width: 100%;
@@ -69,42 +36,23 @@ background-color:#FFE4E1  }
       cursor: pointer;
     }
 
-.info {  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-template-areas:
-    ". . ."
-    ". . ."
-    ". . .";
-  grid-area: info;
-  background-color:#FFDAB9
-}
 
-.all-graphs {  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1.5fr 0.5fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-area: all-graphs;height: 100%; /* Ajusta la altura al tamaño del contenedor */
+.all-graphs {  
   width: 100%; /* Ajusta el ancho al tamaño del contenedor */
   overflow: hidden; /* Evita que se desborde el contenido */ 
 }
 
-.small-graphs { grid-area: 1 / 1 / 3 / 4; }
+ .graph-0 {
+    background-color:rgba(235, 208, 255, 0.5);}
 
-.extra-info { grid-area: 3 / 1 / 4 / 4;
- background-color:#FFE4E1 }
+.graph-1 {
+ background-color:rgba(203, 201, 255,0.5);}
 
-.graph-1 { grid-area: 1 / 1 / 3 / 2;
- background-color:#FFDAB9}
+.graph-2 { 
+ background-color:rgba(231, 252, 212,0.5); }
 
-.graph-2 { grid-area: 1 / 2 / 3 / 3;
- background-color:#D8BFD8 }
-
-.graph-3 { grid-area: 1 / 3 / 3 / 4;
- background-color:#FFF8DC }
+.graph-3 {
+ background-color:rgba(248, 243, 224,0.5);}
 
  .title {
       width: 100%;
@@ -115,7 +63,7 @@ background-color:#FFE4E1  }
 
 .line {
   fill: none;
-  stroke-width: 2;
+  stroke-width: 1;
 }
 
 .overlay {
@@ -133,54 +81,201 @@ background-color:#FFE4E1  }
 .axis line {
   fill: none;
   shape-rendering: crispEdges;
-  stroke: black; 
+  stroke: rgb(160, 218, 84); 
   stroke-width: 4;
 }
-</style>
-</head>
-<body>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
-    <!--moment.js-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
-    <!-- Load d3.js -->
-    <script src="https://d3js.org/d3.v4.js"></script>
+area {
+  fill: rgba(200,200,200,0.1);
+}
+.area.CHI {
+  fill: rgba(62,133,162,0.58);
+}
+.area.CGY {
+  fill: rgba(236,163,30,0.58);
+}
+.tooltip {
+  position: absolute;
+  padding: 4px 15px;
+  font-size: 10px;
+  color: #000;
+  height: 0px;
+  border: 1px solid;
+  border-radius: 2px;
+  height: auto;
+  width: auto;
+}
+.tooltip.hidden {
+  overflow: hidden;
+  opacity: 0;
+  padding: 0px;
+  border: 0px;
+  width: 0px;
+  height: 0px;
+}
+.tooltip.chart0 {
+  background-color: #93BFD1;
+  border-color: #3E85A2;
+}
+.tooltip.chart1 {
+  background-color: #FDEFD5;
+  border-color: #ECA31E;
+}
+.tooltip.chart2 {
+  background-color: #d5fdd9;
+  border-color: #036b1d;
+}
+.tooltip.chart3 {
+  background-color: #c3acf5;
+  border-color: #7939a7;
+}
+path.series {
+  stroke-width: 4;
+  fill: none;
+}
+path.chart0 {
+  stroke: #6DABC4;
+}
+path.chart1 {
+  stroke: #FFC967;
+}
+path.chart2 {
+  stroke: #74c2ef;
+}
+path.chart3 {
+  stroke: #fbb9e0;
+}
+.linedot {
+  stroke-width: 1;
+  fill: #190b6b;
+}
+.linedot.active {
+  stroke-width: 2;
+}
+.linedot.chart0 {
+  stroke: #3E85A2;
+}
+.linedot.chart1 {
+  stroke: #ECA31E;
+}
+.linedot.chart2 {
+  stroke: #175670;
+  fill: #3E85A2;
+}
+.linedot.chart3 {
+  stroke: #AC7209;
+  fill: #ECA31E;
+}
+.linedot.graph text {
+  fill: #fff;
+  stroke: #fff;
+  stroke-width: 1px;
+  font-size: 10px;
+}
+.line-helper {
+  stroke-width: 1px;
+  opacity: 0.4;
+}
+.line-helper.chart0 {
+  stroke: #ECA31E;
+}
+.line-helper.chart1 {
+  stroke: #3E85A2;
+}
+.line-helper.chart2 {
+  stroke: #3ea240;
+}
+.line-helper.chart3 {
+  stroke: #d9afe7;
+}
+.axis {
+  shape-rendering: crispEdges;
+}
+.x.axis line {
+  stroke: rgba(150,150,150,0.15);
+}
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+.x.axis path {
+  display: none;
+}
+.y.axis line {
+  fill: none;
+  stroke: #999;
+}
+.y.axis path {
+  display: none;
+}
+.tick text {
+  font-size: 11px;
+  color: #333;
+}
+.legend text {
+  font-size: 9px;
+  fill: #999;
+  font-weight: 600;
+}
+.legend .chart0 {
+  stroke: #3E85A2;
+  fill: #6DABC4;
+}
+.legend .chart1 {
+  stroke: #ECA31E;
+  fill: #FFC967;
+}
+.legend .chart2 {
+  stroke: #ECA31E;
+  fill: #FFC967;
+}
+.legend .chart3 {
+  stroke: #ECA31E;
+  fill: #FFC967;
+}
 
-    <div class="webcontainer" style="height: 100vh; width: 100vw;">
-      <div class="TITLE">
-        <div class="maintitle">Real Time Solar Wind Data</div>
-        <div class="date">aquí la fecha/hora/min</div>
+      </style>
+  </head>
+  <body>
+  
+  <div id="content">
+
+
+  <div id="shot-chart"></div>
+  <div id="shot-details"></div>
+
+    <div class="TITLE">
+      <div class="maintitle">Real Time Solar Wind Data</div>
+    </div>
+  </div>
+        <div id="chart0" class="graph-0 small-graphs">
+            <div class="title">Speed</div>
+          </div>
+      <div id="chart1" class="graph-1 small-graphs">
+        <div class="title">Density</div>
       </div>
-      <div class="RSG">RSG como en NOAA</div>
-      <div id=main-chart class="graph">
-      <div class="titlegraph">Speed</div>
-    </div>
-      <div class="info">info sobre el gráfico en display</div>
-      <div class="all-graphs">
-        <div id="chart1" class="graph-1 small-graphs">
-          <div class="title">Density</div>
-        </div>
-        <div id="chart2" class="graph-2 small-graphs">
-          <div class="title">Temperature</div>
-        </div>
-        <div id="chart3" class="graph-3 small-graphs">
-          <div class="title">Bx</div>
-    </div>
-
+      <div id="chart2" class="graph-2 small-graphs">
+        <div class="title">Temperature</div>
+      </div>
+      <div id="chart3" class="graph-3 small-graphs">
+        <div class="title">Bx</div>
+  </div>
+</div>
+  <!--moment.js-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+  <!-- Load d3.js -->
+  <script src="https://d3js.org/d3.v4.js"></script>
 <script>
-    // get data 
+     // get data 
   fetch('/api')
   .then(response => response.json())
   .then(data => {
-    Chart(data);
+    graph(data);
 })
    .catch(error => console.log('Error fetching data:', error));
-   
-   function Chart(data) {
+   function graph(data) {
     //parse time
         const parseTime = function(timeString) {
            const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
@@ -201,9 +296,6 @@ background-color:#FFE4E1  }
     return [d.chartspeed, d.chartemperature, d.chartdensity].some(value => !isNaN(value));
 });
 
-console.log("Raw Data:", data);
-console.log("Data Parsed:", PlasmaData);
-
 //diffierentiate data in labels
 const MagData = data.labelsmag.map((label, index) => {
         const MagDate = parseTime(label);
@@ -216,132 +308,256 @@ const MagData = data.labelsmag.map((label, index) => {
   }).filter((d) => {
     // Filtrar solo si los valores numéricos son `null` o `NaN`, pero mantener la fecha
     return [d.chartbx, d.chartby, d.chartbz,d.chartblon,d.chartlat,d.chartbt].some(value => !isNaN(value));
-});
+}); 
 
-console.log("Data Parsed:", MagData);
 
-    function createChart(containerId,dataSet, yAccessor,yLabel,titleText,lineColor) {
+function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
+    // select chart 
+    const chart = d3.select(containerId);
 
-      // select chart 
-       const chart = d3.select(containerId);
-      // margins of the page
-       const margin = { top: -50, right: 0, bottom: -500, left:30 };
-       const width = 364; 
-       const height = 1067;
+    var buildLegend = {
+    legendItemCount: 0,
+    base: function(chart, legendItemSpacing) {
+      this.legendItemSpacing = legendItemSpacing;
+      this.legend = chart.shotChart.append('g')
+        .attr("class","legend")
+        .attr("transform", "translate(" + (chart.width - 100) + "," + (-chart.margins[0] + 30) + ")");
+    },
+}
+      
+    // margins of the page
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const width = 800 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
 
-        //SVG
-        const svg = chart.append('svg')
-        //.attr('width', width )
-        .attr('style','width:100%; height:100%')
-        //.attr('height', height)
+    //SVG
+    const svg = chart.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
         .append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`);
-             
-        //scales
-        const xScale = d3.scaleTime()
+        .attr('transform', `translate(100, 100)`);
+
+    //scales
+    const xScale = d3.scaleTime()
         .domain(d3.extent(dataSet, d => d.date))
-        .range([0, width]);  
+        .range([0, width]);
 
-        const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => d[yAccessor]);
-        const maxY = d3.max(dataSet, d => d[yAccessor]);
+    const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => {
+    const value = parseFloat(d[yAccessor]);
+    return isNaN(value) ? Infinity : value; 
+  });
 
-        const yScale = d3.scaleLinear()
+    const maxY = d3.max(dataSet, d => {
+    const value = parseFloat(d[yAccessor]);
+   return isNaN(value) ? -Infinity : value; 
+  });
+
+  console.log("Min Value:", minY); 
+  console.log("Max Value:", maxY); 
+
+    const yScale = d3.scaleLinear()
         .domain([minY, maxY])
         .range([height, 0])
         .nice();
-       
-        console.log("Ymin",yAccessor,minY)
-        console.log("Ymax",yAccessor,maxY)
 
-        //line graph 
-        const line = d3.line()
+    //line graph 
+    const line = d3.line()
         .x(d => xScale(d.date))
         .y(d => yScale(d[yAccessor]))
         .defined(d => d[yAccessor] !== 0 && d[yAccessor] !== null && !isNaN(d[yAccessor]) || (d[yAccessor] < 0 || d[yAccessor] > 0));
-          
-        //zoom 
-        const zoom = d3.zoom()
-        .scaleExtent([1, 32])
+
+    //zoom 
+    const zoom = d3.zoom()
+        .scaleExtent([1, 512])
         .on('zoom', zoomed);
-        
-        function zoomed() {
-            const new_xScale = d3.event.transform.rescaleX(xScale);
-            svg.select('.x-axis')
-            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M'))); 
-            svg.select('.line')
+
+    function zoomed() {
+        const new_xScale = d3.event.transform.rescaleX(xScale);
+        svg.select('.x-axis')
+            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+        svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
-        }
-        
-        //apply zoom to the graph
-        svg.append('rect')
+    }
+
+    //apply zoom to the graph
+    svg.append('rect')
         .attr('class', 'overlay')
-        //.attr('width', width)
-        //.attr('height', height)
+        .attr('width', width)
+        .attr('height', height)
         .call(zoom);
-        
-        //clipping path to avoid elements spilling out
-        svg.append("defs").append("clipPath")
+
+    //clipping path to avoid elements spilling out
+    svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
         .attr("x", 0)
         .attr("width", width)
         .attr("height", height);
-        
-        //X axis
-        svg.append("g")
-        .attr("class", "x-axis")    
-        .attr("clip-path", "url(#clip)") // add the clip path!
-        //.attr("transform", `translate(0,${height})`)
+
+    //X axis
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("clip-path", "url(#clip)")
+        .attr("stroke-width", 1.5)
+        .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
-        //Y axis
-        svg.append("g")
+    //Y axis
+    svg.append("g")
         .attr("class", "y-axis")
-        .call(d3.axisLeft(yScale).ticks(3))
+        .attr("stroke-width", 1.5)
+        .call(d3.axisLeft(yScale)
+  .ticks(4)
+  .tickFormat(function(d) {
+    return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
+  })
+)
         .call(g => g.selectAll(".tick line").clone()
-        .attr("x2", width - margin.left - margin.right)
-        .attr("stroke-opacity", 0.1));
-       
-        //Y label 
-        svg.append("text")
+            .attr("x2", width )
+            .attr("stroke-opacity", 0.1));
+            var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("pointer-events", "none")
+        .style("opacity", 0);
+
+    //Y label 
+    svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 2 )
-        .attr("x", 2 - (height / 2))
+        .attr("y", -margin.left - 10)
+        .attr("x", -height / 2)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text(yLabel)
         .style("fill", "#000000") // Estilo negro para el texto del eje Y
         .style("font-weight", "bold"); // Make text bold
-        
-        //chart title
-        //const title = svg.append("text")
-        //.attr("x", margin.left)
-        //.attr("y", margin.top -25)
-        //.attr("text-anchor", "middle")
-        //.attr("font-size", "10px")
-        //.attr("font-weight", "bold")
-        //.attr("fill", "#000000") // Dark gray color
-        //.text(titleText);
-      
-        //append line
-        svg.append("path")
-        .data([dataSet])
-        .attr("class", "line") 
-        .attr("clip-path", "url(#clip)") 
-        .attr("stroke", lineColor) 
-        .attr("d", line(dataSet));
-        
-    }  
 
-   // Create initial main chart
-   createChart('#main-chart', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#1a5276');
+    //chart title
+    svg.append("text")
+        .attr("x", width-720)
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "16px")
+        .attr("font-weight", "bold")
+        .attr("fill", "#000000") // Dark gray color
+        .text(titleText);
+
+    //append line
+    svg.append("path")
+        .data([dataSet])
+        .attr("class", "line")
+        .attr("clip-path", "url(#clip)")
+        .attr("stroke", lineColor)
+        .attr("stroke-width", 0.2)
+        .attr("d", line(dataSet));
+
+    //shows data one by one 
+      svg.selectAll(".linedot." + containerId)     
+        .data(dataSet)
+        .enter()
+        .append("g")
+        .attr("class", "linedot"+ containerId )
+        .append("circle")
+        .attr("cx", d => xScale(d.date))
+        .attr("cy", d => yScale(d[yAccessor]))
+        .attr("r", 1)
+        .on("mouseover", function(d, i) {
+          var circle = d3.select(this);
+          handleMouseEvents.over(circle, d,containerId,svg);
+        })    
+        .on("mouseleave", function(event, d) {
+          var circle = d3.select(this);
+          handleMouseEvents.leave(circle, function(event) { return (d[yAccessor] === "valor:") ? 6 : 4 });
+        })
+        .on("click", function(d, i) {
+          var circle = d3.select(this);
+          handleMouseEvents.showDetail(circle, d);
+        });
+        
+      }
+    
+      var handleMouseEvents = {
+        createToolTipDiv: function(duration) {
+        this.transitionDuration = duration;
+        var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+         },
+
+     //Handle the mouseover event for circles
+
+    over: function(elem,data,containerId,chart) {
+      d3.select("body").style("cursor", "pointer");
+      elem.transition().duration(200)
+        .attr("r", (elem.attr("r") * 1.4));
+      this.showToolTip(data,containerId);
+      this.drawLinesToAxes(elem, "x", 0 , containerId);
+      this.drawLinesToAxes(elem, "y", chart.height, containerId);
+    },
+      //Append text element to the circle's parent g element
+    //elem.parent().append("text")
+     // .attr("x", elem.attr("cx"))
+      //.attr("y", elem.attr("cy"))
+      //.attr("dy", "-0.5em")
+      //.text(data[yAccessor]);
+  //},
+
+
+    // Handle the mouseleave event when exiting a circle
+     leave: function(elem, r) {
+      d3.select("body").style("cursor", "default");
+      elem.transition().duration(200)
+        .attr("r", r);
+      d3.select('.tooltip').transition()
+        .duration(this.transitionDuration)
+        .style("opacity", 0);
+      setTimeout(function() {
+        d3.select(".tooltip").classed("hidden", true);
+      }, this.transitionDuration)
+      d3.selectAll(".line-helper").remove();
+    },
+      // Remove the text element when the mouse leaves the circle
+    //elem.parent().select("text").remove();
+   // },
+
+    //Show tooltip when user is hovering on a circle
+     showToolTip: function(data,containerId) {
+      // Crea un elemento div con la clase tooltip si no existe
+  if (!d3.select(".tooltip").node()) {
+    d3.select("body").append("div")
+      .attr("class", "tooltip");
+  }
+
+  // Muestra el tooltip
+  d3.select(".tooltip")
+    .classed("hidden", false)
+    .html("<b>" + (data[yAccessor]).toUpperCase() + "</b><br />" + data.date)
+    .style("left", (d3.event.pageX + 10) + "px")
+    .style("top", (d3.event.pageY - 40) + "px");
+  d3.select(".tooltip")
+    .transition()
+    .duration(this.transitionDuration)
+    .style("opacity", 0.9)
+    .attr("class", function() { return "tooltip " + containerId; });
+      
+},
+
+  }
+  
+// Create initial main chart
+createChart('#chart0', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#8e44ad');
 
 // Create the smaller charts
-createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#a9cce3');
-    createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#2980b9');
-    createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#e74c3c');
-}
+createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#673ab7 ');
 
-</script>    
-</body>
+
+createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#00796b  ');
+
+
+createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#f4511e');
+
+
+   }
+
+</script>
+  </body>
 </html>

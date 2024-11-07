@@ -73,7 +73,7 @@ def prepare_graph_data(mag_data: list, plasma_data: list, start_time: datetime, 
         #Change UTC datetime to SCL datetime
         mag_df['time_tag'] = mag_df['time_tag'].dt.tz_convert('America/Santiago')
         plasma_df['time_tag'] = plasma_df['time_tag'].dt.tz_convert('America/Santiago')
-        print(mag_df['time_tag'])
+     
 
     except KeyError as e:
         print(f"KeyError: {e}")
@@ -96,8 +96,6 @@ def prepare_graph_data(mag_data: list, plasma_data: list, start_time: datetime, 
         print(f"Date parsing error: {e}")
         return graph_data
  
-    print(mag_df['time_tag'])
-    print(timestamps_24h)
 
     try:
         graph_data['labelsplasma'] = plasma_df['time_tag'].astype(str).tolist()
