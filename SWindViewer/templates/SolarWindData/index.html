@@ -1,135 +1,114 @@
-<html>
-  <head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet" type="text/css">
-<style>
-   /* CSS  */
-   body {
-  font: 300 13px/18px 'Helvetica Neue', sans-serif;
-  color: #000000;
-  margin: 0px auto;
-  background-color: #ffffff;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* CSS */
+        body {
+            font-family: 'Roboto Slab', serif;
+            color: #333;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
 
-.TITLE {  
-  gap: 0px 0px;
-  background-color: #000000  ;
-  
-}
+        .TITLE {
+            background-color: #343a40;
+            color: #fff;
+            padding: 20px 0;
+        }
 
-.date { text-align:left;
-}
-.maintitle {
-  text-align: center;
-  font-size: 2em; 
-  color: #000000;
-  margin-top: 0px; 
-  margin-bottom: 5px; 
-  font-family: Futura;  
- }
-
-
- .titlegraph {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.7);
-      text-align: center;
-      cursor: pointer;
-    }
-
-
-.all-graphs { 
-  overflow: hidden; /* Evita que se desborde el contenido */ 
-}
-
-.small-graphs {height:150; 
-  width:1320;  }
-
- .graph-0 {
-    background-color:rgba(255, 255, 255, 0.221);}
-
-.graph-1 {
- background-color:rgba(203, 201, 255,0.5);}
-
-.graph-2 { 
- background-color:rgba(231, 252, 212,0.5); }
-
-.graph-3 {
- background-color:rgba(248, 243, 224,0.5);}
-
- .title {
-      width: 100%;
-      background: rgba(230, 214, 246, 0.169);
-      text-align: center;
-      cursor: pointer;
-    }
-
-.line {
-  fill: none;
-  stroke-width: 1;
-}
-
-.overlay {
-  fill: none;
-  pointer-events: all;
-}
-
-.axis text {
-  font-family: sans-serif, sans-serif;
-  font-size: 13px;
-  fill: black; 
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  shape-rendering: crispEdges;
-  stroke: rgb(160, 218, 84); 
-  stroke-width: 4;
-}
-.tooltip {
-            position: absolute;
+        .maintitle {
             text-align: center;
-            width: 10px;
-            padding: 1px;
+            font-size: 2.5em;
+            margin: 0;
+        }
+
+        .date {
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .all-graphs {
+            display: flex;
+            flex-direction: column; /* Arrange graphs vertically */
+            align-items: center; /* Center align the graphs */
+            padding: 20px;
+        }
+
+        .small-graphs {
+            width: 80%; /* Make it responsive */
+            margin: 10px 0; /* Vertical spacing */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.99);
+            overflow: hidden;
+            background: rgb(255, 255, 255);
+        }
+
+        .small-graphs .title {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            position: absolute; /* Positioning relative to the viewport */
+            text-align: center;
+            padding: 5px;
             font: 12px sans-serif;
             background: lightsteelblue;
-            border: 0px;
-            border-radius: 1px;
-            pointer-events: none;
-            opacity: 0; 
-}
+            border-radius: 4px;
+            pointer-events: none; /* Prevent mouse events */
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.2s; /* Add a transition for fade effect */
+            z-index: 10; /* Ensure it appears above other elements */
+        }
 
-      </style>
-  </head>
-  <body>
-    <div class="body" style="height: 100vh; width: 100vw;">
-      <div class="TITLE">
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .small-graphs {
+                width: 95%; /* Adjust width on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="TITLE">
         <div class="maintitle">Real Time Solar Wind Data</div>
-        <div class="date" id="currentDate" ></div>
-      </div>
-      <div class="all-graphs">
-        <div id="chart1" class="graph-1 small-graphs">
-          <div class="title">Density</div>
-          <div class="tooltip"></div>
-        </div>
-        <div id="chart0" class="graph-0 small-graphs">
-          <div class="titlegraph">Speed</div>
-          <div class="tooltip"></div>
-        </div>
-        <div id="chart2" class="graph-2 small-graphs">
-          <div class="title">Temperature</div>
-        </div>
-        <div id="chart3" class="graph-3 small-graphs">
-          <div class="title">Bx</div>
+        <div class="date" id="currentDate"></div>
     </div>
-  <!--moment.js-->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-  <!-- jQuery library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> 
-  <!-- Latest compiled JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
-  <!-- Load d3.js -->
-  <script src="https://d3js.org/d3.v4.js"></script>
+    <div class="all-graphs">
+        <div id="chart1" class="small-graphs">
+            <div class="title">Density</div>
+            <div class="tooltip"></div>
+        </div>
+        <div id="chart0" class="small-graphs">
+            <div class="title">Speed</div>
+            <div class="tooltip"></div>
+        </div>
+        <div id="chart2" class="small-graphs">
+            <div class="title">Temperature</div>
+            <div class="tooltip"></div>
+        </div>
+        <div id="chart3" class="small-graphs">
+            <div class="title">BX</div>
+            <div class="tooltip"></div>
+        </div>
+    </div>
+
+    <!-- Moment.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Load D3.js -->
+    <script src="https://d3js.org/d3.v7.js"></script>
 <script>
 
 
@@ -232,88 +211,79 @@ console.log(currentData)
 
 
 function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
-    // select chart 
+    // Select chart 
     const chart = d3.select(containerId);
      
-    // margins of the page
-    const margin = { top:25, right: 10, bottom: 100, left: 60 };
+    // Margins of the page
+    const margin = { top: 25, right: 10, bottom: 100, left: 60 };
     const width = 1240 - margin.left - margin.right;
-    const height =180 - margin.top - margin.bottom;
+    const height = 180 - margin.top - margin.bottom;
 
-    //SVG
+    // SVG
     const svg = chart.append('svg')
-        .attr('width','100%')
-        .attr('height','100%')
+        .attr('width', '100%')
+        .attr('height', '100%')
         .append('g')
-        .attr('transform',`translate(${margin.left}, ${margin.top})`);
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    //scales
+    // Define clipping path to avoid elements spilling out
+    svg.append('defs').append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height);
+    
+    // Scales
     const xScale = d3.scaleTime()
         .domain(d3.extent(dataSet, d => d.date))
         .range([0, width]);
 
     const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => {
-    const value = parseFloat(d[yAccessor]);
-    return isNaN(value) ? Infinity : value; 
-  });
-
-    const maxY = d3.max(dataSet, d => {
-    const value = parseFloat(d[yAccessor]);
-   return isNaN(value) ? -Infinity : value; 
-  });
-
-  console.log("Min Value:", minY); 
-  console.log("Max Value:", maxY); 
+        const value = parseFloat(d[yAccessor]);
+        return value;
+    });
 
     const yScale = d3.scaleLinear()
-        .domain([minY, maxY])
-        .range([height, 0])
-        .nice();
+        .domain([minY, d3.max(dataSet, d => parseFloat(d[yAccessor]))])
+        .range([height, 0]);
 
-    //line graph 
+    // Line graph 
     const line = d3.line()
         .x(d => xScale(d.date))
-        .y(d => yScale(d[yAccessor]))
-        .defined(d => d[yAccessor] !== 0 && d[yAccessor] !== null && !isNaN(d[yAccessor]) || (d[yAccessor] < 0 || d[yAccessor] > 0));
+        .y(d => yScale(d[yAccessor]));
 
-    //zoom 
+    // Zoom 
     const zoom = d3.zoom()
-        //.scaleExtent([1, 512])
         .scaleExtent([1, 10])
-    .translateExtent([[0, 0], [width, height]])
-    .extent([[0, 0], [width, height]])
+        .translateExtent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height]])
         .on('zoom', zoomed);
 
-    function zoomed() {
-        const new_xScale = d3.event.transform.rescaleX(xScale);
-        svg.select('.x-axis')
-            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
-        svg.select('.line')
-            .attr('d', line.x(d => new_xScale(d.date)));
-
-            
-            svg.selectAll('.dot')
-        .attr('cx', d => new_xScale(d.date))
-        .attr('cy', d => yScale(d[yAccessor]));
-    }
-
-    //apply zoom to the graph
-    svg.append('rect')
-        .attr('class', 'overlay')
-        .attr('width', width)
-        .attr('height', height)
-        .style('pointer-events', 'all')
+    // Apply zoom to the graph
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
         .call(zoom);
 
-    //clipping path to avoid elements spilling out
-    svg.append("defs").append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("x", 0)
-        .attr("width", width)
-        .attr("height", height);
+    function zoomed(event) {
+        const new_xScale = event.transform.rescaleX(xScale);
+        const new_yScale = yScale.copy().range([height, 0]); // Update yScale for zoom
 
-    //X axis
+        svg.select('.x-axis')
+            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+        svg.select('.line')
+            .attr('d', line.x(d => new_xScale(d.date)).y(d => new_yScale(d[yAccessor]))); // Update line position
+
+        svg.selectAll('.dot')
+            .attr('cx', d => new_xScale(d.date))
+            .attr('cy', d => new_yScale(d[yAccessor])); // Update dot position
+    }
+
+    // X axis
     svg.append("g")
         .attr("class", "x-axis")
         .attr("clip-path", "url(#clip)")
@@ -321,74 +291,96 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
-    //Y axis
+    // Y axis
     svg.append("g")
         .attr("class", "y-axis")
         .attr("stroke-width", 1)
         .call(d3.axisLeft(yScale)
-  .ticks(4)
-  .tickFormat(function(d) {
-    return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
-  })
-)
+            .ticks(4)
+            .tickFormat(function(d) {
+                return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
+            }))
         .call(g => g.selectAll(".tick line").clone()
-            .attr("x2", width )
+            .attr("x2", width)
             .attr("stroke-opacity", 0.1));
-      
 
-    //Y label 
+    // Y label 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left +10)
+        .attr("y", -margin.left + 10)
         .attr("x", -height / 2)
         .attr("dy", "0.5em")
         .style("text-anchor", "middle")
         .text(yLabel)
-        .style("fill", "#000000") // Estilo negro para el texto del eje Y
+        .style("fill", "#000000") // Black color for the Y-axis label
         .style("font-weight", "bold"); // Make text bold
 
-    //chart title
-    svg.append("text")
-        .attr("x", width-1100)
-        .attr("y", (-margin.top/2) +23 )
-        .attr("text-anchor", "middle")
-        .attr("font-size", "15px")
-        .attr("font-weight", "bold")
-        .attr("fill", "#000000") // Dark gray color
-        .text(titleText);
-
-    //append line
-    svg.append("path")
+    // Append line
+    const linePath = svg.append("path")
         .data([dataSet])
         .attr("class", "line")
-        .attr("clip-path", "url(#clip)")
+        .attr("fill", "none")
         .attr("stroke", lineColor)
-        .attr("stroke-width", 0.2)
-        .attr("d", line(dataSet));
- 
-      // Puntos y tooltip
-const tooltip = d3.select('body').append('div').attr('class', 'tooltip').style('opacity', 0);
-svg.selectAll('.dot')
-    .data(dataSet)
-    .enter().append('circle')
-    .attr('class', 'dot')
-    .attr('cx', d => xScale(d.date))
-    .attr('cy', d => yScale(d[yAccessor]))
-    .attr('r', 1)
-    .attr('fill', 'steelblue')
-    .on('mouseover', function(event, d) {
-        d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 3);
-        tooltip.transition().duration(200).style('opacity', 0.9);
-        tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
-            .style('left', (event.pageX + 5) + 'px')
-            .style('top', (event.pageY - 28) + 'px');
-    })
-    .on('mouseout', function() {
-        d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 5);
-        tooltip.transition().duration(200).style('opacity', 0);
-    });
-    
-      }
+        .attr("stroke-width", 0.4)
+        .attr("d", line(dataSet))
+        .attr("clip-path", "url(#clip)");
+
+    // Create a group for the dots
+    const dotsGroup = svg.append('g')
+        .attr('clip-path', 'url(#clip)');
+
+    // Append the dots but set their initial opacity to 0
+    const dots = dotsGroup.selectAll('.dot')
+        .data(dataSet)
+        .enter().append('circle')
+        .attr('class', 'dot')
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor]))
+        .attr('r', 1) // Set a larger radius for visibility
+        .attr('fill', 'steelblue')
+        .style('opacity', 0.5) // Initially hidden
+        .on('mouseover', function(event, d) {
+            d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
+            tooltip.transition().duration(200).style('opacity', 0.9);
+            const [x, y] = d3.pointer(event, this);
+            tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
+                .style('left', (event.pageX + 5) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function() {
+            d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 3);
+            tooltip.transition().duration(200).style('opacity', 0);
+        });
+
+    // Add mouse events to the line
+linePath.on('mouseover', function() {
+    d3.select(this).style('opacity', 1); // Ensure line is visible
+})
+.on('mousemove', function(event) {
+    const mouseX = d3.pointer(event)[0]; // Get mouse X position
+    const x0 = xScale.invert(mouseX); // Convert mouse X to the corresponding date
+    const index = d3.bisectLeft(dataSet.map(d => d.date), x0); // Find the index of the closest date
+
+    // Select the nearest data point
+    const closestDataPoint = dataSet[index];
+
+    // Highlight the closest dot
+    if (closestDataPoint) {
+        dots.transition().duration(200).style('opacity', 0); // Hide all dots
+        d3.select(dots.nodes()[index]).transition().duration(200).attr('fill', 'orange').attr('r', 5); // Highlight the closest dot
+    }
+})
+.on('mouseout', function() {
+    dots.style('opacity', 0); // Hide dots when not hovering
+});
+
+    // Tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute') // Ensure the tooltip is absolutely positioned
+        .style('pointer-events', 'none'); // Prevent mouse events from interfering
+}
 
 // Función para actualizar la fecha y hora
 function updateDate() {
