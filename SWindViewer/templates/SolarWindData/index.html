@@ -5,20 +5,23 @@
 <style>
    /* CSS  */
    body {
-  font: 300 13px/18px 'Helvetica Neue', sans-serif;
-  color: #000000;
-  margin: 0px auto;
-  background-color: #ffffff;
-}
+    font: 300 13px/18px 'Helvetica Neue', sans-serif;
+    color: #000000;
+    margin: 0px auto;
+    background-color: #ffffff;
+  }
+
 
 .TITLE {  
-  gap: 0px 0px;
+  padding: 20px 0;
   background-color: #000000  ;
-  
-}
+  }
 
 .date { text-align:left;
+  font-size: 1.2em 
 }
+.last-update { text-align:right;
+  font-size: 1.2em }
 .maintitle {
   text-align: center;
   font-size: 2em; 
@@ -28,21 +31,20 @@
   font-family: Futura;  
  }
 
-
- .titlegraph {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.7);
-      text-align: center;
-      cursor: pointer;
-    }
-
-
 .all-graphs { 
-  overflow: hidden; /* Evita que se desborde el contenido */ 
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  padding: 0px;
+  overflow: hidden; 
 }
 
-.small-graphs {height:150; 
-  width:1320;  }
+.small-graphs {
+  width: 100%; 
+  margin: 0px 0; 
+  overflow: hidden;
+  background: rgb(255, 255, 255);
+}
 
  .graph-0 {
     background-color:rgba(255, 255, 255, 0.221);}
@@ -63,65 +65,65 @@
       cursor: pointer;
     }
 
-.line {
-  fill: none;
-  stroke-width: 1;
-}
-
-.overlay {
-  fill: none;
-  pointer-events: all;
-}
-
 .axis text {
   font-family: sans-serif, sans-serif;
   font-size: 13px;
   fill: black; 
 }
 
-.axis path,
-.axis line {
-  fill: none;
-  shape-rendering: crispEdges;
-  stroke: rgb(160, 218, 84); 
-  stroke-width: 4;
-}
 .tooltip {
             position: absolute;
             text-align: center;
-            width: 10px;
-            padding: 1px;
+            padding: 5px;
             font: 12px sans-serif;
             background: lightsteelblue;
-            border: 0px;
-            border-radius: 1px;
+            border-radius: 4px;
             pointer-events: none;
-            opacity: 0; 
+            opacity: 0;
+            transition: opacity 0.2s; 
+            z-index: 10;  
 }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+            .small-graphs {
+                width: 100%; 
+            }
+        }
+
 
       </style>
   </head>
   <body>
-    <div class="body" style="height: 100vh; width: 100vw;">
       <div class="TITLE">
-        <div class="maintitle">Real Time Solar Wind Data</div>
-        <div class="date" id="currentDate" ></div>
+           <div class="maintitle">Viento Solar en Tiempo Real</div>
+           <div class="date" id="currentDate" ></div>
+           <div class="last-update"id="lastupdate"></div>
       </div>
-      <div class="all-graphs">
+      <div id="chartContainer">
+        <button id="toggleBx">Toggle Bx</button>
+        <button id="toggleBy">Toggle By</button>
+        <button id="toggleBz">Toggle Bz</button>
+    </div>
+     <div class="all-graphs">
         <div id="chart1" class="graph-1 small-graphs">
-          <div class="title">Density</div>
-          <div class="tooltip"></div>
+          
+               <div class="tooltip"></div>
         </div>
         <div id="chart0" class="graph-0 small-graphs">
-          <div class="titlegraph">Speed</div>
-          <div class="tooltip"></div>
+          
+              <div class="tooltip"></div>
         </div>
         <div id="chart2" class="graph-2 small-graphs">
-          <div class="title">Temperature</div>
+            
+               <div class="tooltip"></div>
         </div>
         <div id="chart3" class="graph-3 small-graphs">
-          <div class="title">Bx</div>
+  
+          <div class="tooltip"></div>
     </div>
+  </div>
+
   <!--moment.js-->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <!-- jQuery library -->
@@ -129,11 +131,11 @@
   <!-- Latest compiled JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
   <!-- Load d3.js -->
-  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://d3js.org/d3.v7.js"></script>
 <script>
 
 
-let isFirstLoad = true; // Estado para saber si es la primera carga
+let isFirstLoad = true; 
 
 // Function to fetch data and update the graph
 function fetchData() {
@@ -142,16 +144,18 @@ function fetchData() {
         .then(data => {  
           if (isFirstLoad) {
                 graph(data); // Llama a graph(data) solo en la primera carga
+                updateLastUpdate();
                 isFirstLoad = false; // Cambia el estado después de la primera carga
             } else {
-                updateChart(data); // Actualiza los gráficos con nuevos datos
+                graph(data); // Actualiza los gráficos con nuevos datos
+                updateLastUpdate();
             }
         })
         .catch(error => console.log('Error fetching data:', error));
 }
 
-// Call fetchData every 2min (120000 ms)
-setInterval(fetchData, 120000);
+// Call fetchData every 5min (300000 ms)
+setInterval(fetchData, 6000);
 
 // Initial call to fetch data immediately on page load
 fetchData();
@@ -163,6 +167,7 @@ let currentData = {
 };
 
    function graph(data) {
+    console.log("raw data",data)
     //parse time
         const parseTime = function(timeString) {
            const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
@@ -208,27 +213,36 @@ const MagData = data.labelsmag.map((label, index) => {
 
         createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#00796b  ');
 
-        createChart('#chart3', MagData, 'chartbx', 'nT', 'BX', '#f4511e');
+        createChart('#chart3', MagData, [d => d.chartbx, d => d.chartby, d => d.chartbz], 'nT', 'BX BY BZ', ['#8e44ad', '#3498db', '#e74c3c']);
 
     } else {
         // Si no es la primera vez, guarda solo los últimos 5 datos en currentData
         const lastPlasmaData = PlasmaData.slice(-5);
         const lastMagData = MagData.slice(-5);
+        let NewData_mag= MagData
+        let NewData_plasma= PlasmaData
 
-        currentData.PlasmaData = [...currentData.PlasmaData, ...lastPlasmaData];
-        currentData.MagData = [...currentData.MagData, ...lastMagData];
+        console.log("new data:",lastPlasmaData)
+        console.log("new data:",lastMagData)
 
-       if (currentData.PlasmaData.length > 1440) {
-            currentData.PlasmaData = currentData.PlasmaData.slice(-1440);
+       if (NewData_mag.length > 1440) {
+           NewData_mag = NewData_mag.slice(5);
         }
-        if (currentData.MagData.length > 1440) {
-            currentData.MagData = currentData.MagData.slice(-1440);
+        if (NewData_plasma.length > 1440) {
+            NewData_plasma = NewData_plasma.slice(5);
         }
+        console.log("data graph:",NewData_mag)
+        console.log("data graph:",NewData_mag)
+
+        UpdateChart('#chart3', MagData, 'chartbx', '#f4511e')
+        UpdateChart('#chart0', PlasmaData, 'chartspeed', '#8e44ad')
+        UpdateChart('#chart1', PlasmaData, 'chartdensity','#673ab7 ')
+        UpdateChart('#chart2', PlasmaData, 'chartemperature', '#00796b  ');
+
     }
   }
 
-console.log(data)
-console.log(currentData)
+console.log("data en array:",currentData)
 
 
 function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
@@ -237,7 +251,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
      
     // margins of the page
     const margin = { top:25, right: 10, bottom: 100, left: 60 };
-    const width = 1240 - margin.left - margin.right;
+    const width = 1390 - margin.left - margin.right;
     const height =180 - margin.top - margin.bottom;
 
     //SVG
@@ -245,21 +259,28 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr('width','100%')
         .attr('height','100%')
         .append('g')
-        .attr('transform',`translate(${margin.left}, ${margin.top})`);
+        .attr('transform',`translate(${margin.left}, 45)`);
 
-    //scales
+    // Define clipping path to avoid elements spilling out
+    svg.append('defs').append('clipPath')
+        .attr('id', 'clip')
+        .append('rect')
+        .attr('width', width)
+        .attr('height', height);
+
+             //Scales
     const xScale = d3.scaleTime()
         .domain(d3.extent(dataSet, d => d.date))
         .range([0, width]);
 
     const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => {
     const value = parseFloat(d[yAccessor]);
-    return isNaN(value) ? Infinity : value; 
+    return value; 
   });
 
     const maxY = d3.max(dataSet, d => {
     const value = parseFloat(d[yAccessor]);
-   return isNaN(value) ? -Infinity : value; 
+   return value; 
   });
 
   console.log("Min Value:", minY); 
@@ -270,40 +291,56 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .range([height, 0])
         .nice();
 
-    //line graph 
-    const line = d3.line()
+    // Add the lines
+ yAccessor.forEach((yAccessor, i) => {
+ const line = d3.line()
         .x(d => xScale(d.date))
         .y(d => yScale(d[yAccessor]))
         .defined(d => d[yAccessor] !== 0 && d[yAccessor] !== null && !isNaN(d[yAccessor]) || (d[yAccessor] < 0 || d[yAccessor] > 0));
 
+ const linePath = svg.append("path")
+         .data([dataSet]) 
+         .attr("class", "line") 
+         .attr("fill", "none") 
+         .attr("stroke", lineColor[i]) 
+         .attr("stroke-width", 1) 
+         .attr("d", line(dataSet)) 
+         .attr("clip-path", "url(#clip)");
+         }
+        
+        );
+
     //zoom 
     const zoom = d3.zoom()
-        //.scaleExtent([1, 512])
-        .scaleExtent([1, 10])
-    .translateExtent([[0, 0], [width, height]])
-    .extent([[0, 0], [width, height]])
+        .scaleExtent([1, 120])
+        .translateExtent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height]])
         .on('zoom', zoomed);
 
-    function zoomed() {
-        const new_xScale = d3.event.transform.rescaleX(xScale);
+     //apply zoom to the graph
+     svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style("fill", "none")
+        .style('pointer-events', 'all')
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(zoom);
+
+    function zoomed(event) {
+        const new_xScale = event.transform.rescaleX(xScale);
+ 
         svg.select('.x-axis')
             .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
         svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
 
             
-            svg.selectAll('.dot')
+        svg.selectAll('.dot')
         .attr('cx', d => new_xScale(d.date))
         .attr('cy', d => yScale(d[yAccessor]));
     }
 
-    //apply zoom to the graph
-    svg.append('rect')
-        .attr('class', 'overlay')
-        .attr('width', width)
-        .attr('height', height)
-        .style('pointer-events', 'all')
-        .call(zoom);
 
     //clipping path to avoid elements spilling out
     svg.append("defs").append("clipPath")
@@ -329,13 +366,11 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
   .ticks(4)
   .tickFormat(function(d) {
     return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
-  })
-)
+     }))
         .call(g => g.selectAll(".tick line").clone()
             .attr("x2", width )
             .attr("stroke-opacity", 0.1));
       
-
     //Y label 
     svg.append("text")
         .attr("transform", "rotate(-90)")
@@ -349,47 +384,90 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
 
     //chart title
     svg.append("text")
-        .attr("x", width-1100)
-        .attr("y", (-margin.top/2) +23 )
+        .attr("x", 695)
+        .attr("y", -15 )
         .attr("text-anchor", "middle")
         .attr("font-size", "15px")
         .attr("font-weight", "bold")
         .attr("fill", "#000000") // Dark gray color
         .text(titleText);
 
-    //append line
-    svg.append("path")
-        .data([dataSet])
-        .attr("class", "line")
-        .attr("clip-path", "url(#clip)")
-        .attr("stroke", lineColor)
-        .attr("stroke-width", 0.2)
-        .attr("d", line(dataSet));
- 
-      // Puntos y tooltip
-const tooltip = d3.select('body').append('div').attr('class', 'tooltip').style('opacity', 0);
-svg.selectAll('.dot')
-    .data(dataSet)
-    .enter().append('circle')
-    .attr('class', 'dot')
-    .attr('cx', d => xScale(d.date))
-    .attr('cy', d => yScale(d[yAccessor]))
-    .attr('r', 1)
-    .attr('fill', 'steelblue')
-    .on('mouseover', function(event, d) {
-        d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 3);
-        tooltip.transition().duration(200).style('opacity', 0.9);
-        tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
-            .style('left', (event.pageX + 5) + 'px')
-            .style('top', (event.pageY - 28) + 'px');
-    })
-    .on('mouseout', function() {
-        d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 5);
-        tooltip.transition().duration(200).style('opacity', 0);
-    });
-    
-      }
+        const startPoint = dataSet[0];
+        const endPoint = dataSet[dataSet.length - 1];
 
+        svg.append("circle")
+        .attr("cx", xScale(startPoint.date))
+        .attr("cy", yScale(startPoint[yAccessor]))
+        .attr("r", 3)
+        .attr("fill", "green")
+        .attr("stroke", "black")
+        .attr("stroke-width", 0.5);
+
+    svg.append("circle")
+        .attr("cx", xScale(endPoint.date))
+        .attr("cy", yScale(endPoint[yAccessor]))
+        .attr("r", 3)
+        .attr("fill", "red")
+        .attr("stroke", "black")
+        .attr("stroke-width", 0.5);
+
+    // Create a group for the dots
+    const dotsGroup = svg.append('g')
+        .attr('clip-path', 'url(#clip)');
+
+    // Append the dots but set their initial opacity to 0
+    const dots = dotsGroup.selectAll('.dot')
+        .data(dataSet)
+        .enter().append('circle')
+        .attr('class', 'dot')
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor]))
+        .attr('r', 1) // Set a larger radius for visibility
+        .attr('fill', lineColor)
+        .style('opacity', 0.5) // Initially hidden
+        .on('mouseover', function(event, d) {
+            d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
+            tooltip.transition().duration(200).style('opacity', 0.9);
+            const [x, y] = d3.pointer(event, this);
+            tooltip.html(`Fecha: ${d3.timeFormat('%d %b %H:%M')(d.date)}<br/>Valor: ${d[yAccessor]}`)
+                .style('left', (event.pageX + 5) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function() {
+            d3.select(this).transition().duration(200).attr('fill', lineColor).attr('r', 3);
+            tooltip.transition().duration(200).style('opacity', 0);
+        });
+
+    // Add mouse events to the line
+linePath.on('mouseover', function() {
+    d3.select(this).style('opacity', 1); // Ensure line is visible
+})
+.on('mousemove', function(event) {
+    const mouseX = d3.pointer(event)[0]; // Get mouse X position
+    const x0 = xScale.invert(mouseX); // Convert mouse X to the corresponding date
+    const index = d3.bisectLeft(dataSet.map(d => d.date), x0); // Find the index of the closest date
+
+    // Select the nearest data point
+    const closestDataPoint = dataSet[index];
+
+    // Highlight the closest dot
+    if (closestDataPoint) {
+        dots.transition().duration(200).style('opacity', 0); // Hide all dots
+        d3.select(dots.nodes()[index]).transition().duration(200).attr('fill', 'orange').attr('r', 5); // Highlight the closest dot
+    }
+})
+.on('mouseout', function() {
+    dots.style('opacity', 0); // Hide dots when not hovering
+});
+
+    // Tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute') // Ensure the tooltip is absolutely positioned
+        .style('pointer-events', 'none'); // Prevent mouse events from interfering
+}
+ 
 // Función para actualizar la fecha y hora
 function updateDate() {
     const now = new Date();
@@ -397,134 +475,168 @@ function updateDate() {
     d3.select('#currentDate') // Selecciona el elemento con id 'currentDate'
         .text(formattedDate); // Actualiza el texto
 }
-
 // Llama a la función al cargar la página
 updateDate();
-
 // Actualiza cada minuto (60000 ms)
 setInterval(updateDate, 1000);
 
-// Función para actualizar el gráfico
-function updateChart(data) {
-  function updateChart(data) {
-    // Selecciona los elementos del gráfico de D3.js y actualiza sus datos
-    
-    // Actualiza la escala de tiempo con los nuevos datos
-    const xScale = d3.scaleTime()
-        .domain(d3.extent(currentData.PlasmaData, d => d.date))
-        .range([0, width]);
-
-    // Actualiza la escala de valores con los nuevos datos (ejemplo para chartspeed)
-    const yScalePlasma = d3.scaleLinear()
-        .domain([0, d3.max(currentData.PlasmaData, d => d.chartspeed)])
-        .range([height, 0]);
-
-    const yScaleMag = d3.scaleLinear()
-        .domain([d3.min(currentData.MagData, d => d.chartbx), d3.max(currentData.MagData, d => d.chartbx)])
-        .range([height, 0]);
-
-    // Selecciona y actualiza la línea del gráfico de PlasmaData
-    const plasmaLine = d3.line()
-        .x(d => xScale(d.date))
-        .y(d => yScalePlasma(d.chartspeed));
-
-    d3.select(".plasma-line")
-        .datum(currentData.PlasmaData)
-        .transition()
-        .duration(750)
-        .attr("d", plasmaLine);
-
-    // Selecciona y actualiza la línea del gráfico de MagData
-    const magLine = d3.line()
-        .x(d => xScale(d.date))
-        .y(d => yScaleMag(d.chartbx));
-
-    d3.select(".mag-line")
-        .datum(currentData.MagData)
-        .transition()
-        .duration(750)
-        .attr("d", magLine);
-
-    // Actualiza los ejes con las nuevas escalas
-    d3.select(".x-axis")
-        .transition()
-        .duration(750)
-        .call(d3.axisBottom(xScale));
-
-    d3.select(".y-axis-plasma")
-        .transition()
-        .duration(750)
-        .call(d3.axisLeft(yScalePlasma));
-
-    d3.select(".y-axis-mag")
-        .transition()
-        .duration(750)
-        .call(d3.axisLeft(yScaleMag));
+function updateLastUpdate() {
+    const now = new Date();
+    const formattedTime = now.toLocaleTimeString(); // Formato de hora y minuto
+    d3.select('#lastUpdate') // Selecciona el elemento con id 'lastUpdate'
+        .text(`Última actualización: ${formattedTime}`); // Actualiza el texto
 }
 
-// Inicializa los gráficos en la función graph
-function initializeGraph() {
-    // Aquí defines las escalas y ejes iniciales
+function UpdateChart(containerId, dataSet, yAccessor,lineColor){
+  console.log("Y:",yAccessor)
+  // select chart 
+  const chart = d3.select(containerId);
+  // margins of the page
+  const margin = { top:25, right: 10, bottom: 100, left: 60 };
+    const width = 1390 - margin.left - margin.right;
+    const height =180 - margin.top - margin.bottom;
+  // Seleccionar el contenedor SVG y eliminar los elementos anteriores
+  let svg = chart.select("svg");
+ 
+ if (svg.empty()) {
+     svg = chart.append('svg')
+         .attr('width', "100%")
+         .attr('height',"100%")
+         .append('g')
+         .attr('transform', `translate(${margin.left}, 45)`);
+ } else {
+     svg = svg.select('g');
+ }
+
+  svg.selectAll('.line').remove();
+  svg.selectAll('.line').remove();
+  svg.selectAll('.dot').remove();
+  svg.selectAll('.x-axis').remove();
+  svg.selectAll('.y-axis').remove();
+  svg.selectAll('.tooltip').remove();
+
+    //Scales
     const xScale = d3.scaleTime()
-        .range([0, width]);
+    .domain(d3.extent(dataSet, d => d.date))
+    .range([0, width+5]);
 
-    const yScalePlasma = d3.scaleLinear()
-        .range([height, 0]);
+    const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => {
+    const value = parseFloat(d[yAccessor]);
+    return value; 
+  });
 
-    const yScaleMag = d3.scaleLinear()
-        .range([height, 0]);
+    const maxY = d3.max(dataSet, d => {
+    const value = parseFloat(d[yAccessor]);
+   return value; 
+  });
 
-    // Define las líneas iniciales
-    const plasmaLine = d3.line()
+  console.log("Min Value:", minY); 
+  console.log("Max Value:", maxY); 
+
+    const yScale = d3.scaleLinear()
+        .domain([minY, maxY])
+        .range([height, 0])
+        .nice();
+
+    //line graph 
+    const line = d3.line()
         .x(d => xScale(d.date))
-        .y(d => yScalePlasma(d.chartspeed));
+        .y(d => yScale(d[yAccessor]))
+        .defined(d => d[yAccessor] !== 0 && d[yAccessor] !== null && !isNaN(d[yAccessor]) || (d[yAccessor] < 0 || d[yAccessor] > 0));
 
-    const magLine = d3.line()
-        .x(d => xScale(d.date))
-        .y(d => yScaleMag(d.chartbx));
+    //append line
+    const linePath = svg.append("path")
+        .data([dataSet])
+        .attr("class", "line")
+        .attr("fill", "none")
+        .attr("stroke", lineColor)
+        .attr("stroke-width", 1)
+        .attr("d", line(dataSet))
+        .attr("clip-path", "url(#clip)");
 
-    // Crea los elementos SVG y añade las líneas y ejes
-    const svg = d3.select("body").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        const zoom = d3.zoom()
+        .scaleExtent([1, 120])
+        .translateExtent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height]])
+        .on('zoom', zoomed);
 
-    // Añade la línea de PlasmaData
-    svg.append("path")
-        .datum(currentData.PlasmaData)
-        .attr("class", "plasma-line")
-        .attr("d", plasmaLine);
+    svg.select('rect').call(zoom);  // Reapply zoom
 
-    // Añade la línea de MagData
-    svg.append("path")
-        .datum(currentData.MagData)
-        .attr("class", "mag-line")
-        .attr("d", magLine);
+    function zoomed(event) {
+        const new_xScale = event.transform.rescaleX(xScale);
 
-    // Añade los ejes
+        svg.select('.x-axis')
+            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+        svg.select('.line')
+            .attr('d', line.x(d => new_xScale(d.date)));
+
+        svg.selectAll('.dot')
+            .attr('cx', d => new_xScale(d.date))
+            .attr('cy', d => yScale(d[yAccessor]));
+    }
+
+    // Clipping path
+    svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("x", 0)
+        .attr("width", width)
+        .attr("height", height);
+
+    // X Axis
     svg.append("g")
         .attr("class", "x-axis")
+        .attr("clip-path", "url(#clip)")
+        .attr("stroke-width", 1)
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
+        .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
+    // Y Axis
     svg.append("g")
-        .attr("class", "y-axis-plasma")
-        .call(d3.axisLeft(yScalePlasma));
+        .attr("class", "y-axis")
+        .attr("stroke-width", 1)
+        .call(d3.axisLeft(yScale)
+            .ticks(4)
+            .tickFormat(function(d) {
+                return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
+            }))
+        .call(g => g.selectAll(".tick line").clone()
+            .attr("x2", width)
+            .attr("stroke-opacity", 0.1));
+      // Create a group for the dots
+    const dotsGroup = svg.append('g')
+        .attr('clip-path', 'url(#clip)');
 
-    svg.append("g")
-        .attr("class", "y-axis-mag")
-        .call(d3.axisLeft(yScaleMag));
-}
+    // Append the dots
+    const dots = dotsGroup.selectAll('.dot')
+        .data(dataSet)
+        .enter().append('circle')
+        .attr('class', 'dot')
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor]))
+        .attr('r', 1) // Set a larger radius for visibility
+        .attr('fill',lineColor)
+        .style('opacity', 0.5) // Initially hidden
+        .on('mouseover', function(event, d) {
+            d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
+            tooltip.transition().duration(200).style('opacity', 0.9);
+            const [x, y] = d3.pointer(event, this);
+            tooltip.html(`Fecha: ${d3.timeFormat('%d %b %H:%M')(d.date)}<br/>Valor: ${d[yAccessor]}`)
+                .style('left', (event.pageX + 5) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function() {
+            d3.select(this).transition().duration(200).attr('fill', lineColor).attr('r', 3);
+            tooltip.transition().duration(200).style('opacity', 0);
+        });
 
-// Llama a la función para inicializar el gráfico en graph
-function graph(data) {
-    // Tu lógica existente de graph
-
-    if (isFirstLoad) {
-        initializeGraph();
-    }
-}
+    // Tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute') // Ensure the tooltip is absolutely positioned
+        .style('pointer-events', 'none'); // Prevent mouse events from interfering
 
 }
 
