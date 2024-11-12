@@ -44,7 +44,7 @@
             margin: 10px 0; /* Vertical spacing */
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(255, 255, 255, 0.99);
-            overflow: hidden;
+            overflow: hidden; /* Hide overflow */
             background: rgb(255, 255, 255);
         }
 
@@ -215,9 +215,9 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
     const chart = d3.select(containerId);
      
     // Margins of the page
-    const margin = { top: 25, right: 10, bottom: 100, left: 60 };
-    const width = 1240 - margin.left - margin.right;
-    const height = 180 - margin.top - margin.bottom;
+    const margin = { top: 25, right: 10, bottom: 80, left: 60 };
+    const width = parseInt(chart.style('width')) - margin.left - margin.right;
+    const height = 200 - margin.top - margin.bottom;
 
     // SVG
     const svg = chart.append('svg')
@@ -254,7 +254,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
 
     // Zoom 
     const zoom = d3.zoom()
-        .scaleExtent([1, 10])
+        .scaleExtent([1, 120])
         .translateExtent([[0, 0], [width, height]])
         .extent([[0, 0], [width, height]])
         .on('zoom', zoomed);
@@ -268,20 +268,29 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr("transform", `translate(${margin.left}, ${margin.top})`)
         .call(zoom);
 
-    function zoomed(event) {
-        const new_xScale = event.transform.rescaleX(xScale);
-        const new_yScale = yScale.copy().range([height, 0]); // Update yScale for zoom
+        function zoomed(event) {
+    const new_xScale = event.transform.rescaleX(xScale);
+    const new_yScale = yScale.copy().range([height, 0]); // Update yScale for zoom
 
-        svg.select('.x-axis')
-            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+    svg.select('.x-axis')
+        .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M'))); // Format to show hours and minutes
 
-        svg.select('.line')
-            .attr('d', line.x(d => new_xScale(d.date)).y(d => new_yScale(d[yAccessor]))); // Update line position
+    svg.select('.line')
+        .attr('d', line.x(d => new_xScale(d.date)).y(d => new_yScale(d[yAccessor]))); // Update line position
 
-        svg.selectAll('.dot')
-            .attr('cx', d => new_xScale(d.date))
-            .attr('cy', d => new_yScale(d[yAccessor])); // Update dot position
-    }
+    svg.selectAll('.dot')
+        .attr('cx', d => new_xScale(d.date))
+        .attr('cy', d => new_yScale(d[yAccessor])); // Update dot position
+
+    // Determine the scale factor
+    const scaleFactor = event.transform.k;
+
+    // Set a threshold for visibility; adjust this value as needed
+    const visibilityThreshold = 5; // This means dots will be visible when zoomed in more than 5 times
+
+    svg.selectAll('.dot')
+        .style('opacity', scaleFactor > visibilityThreshold ? 1 : 0); // Show dots if zoomed in enough
+}
 
     // X axis
     svg.append("g")
@@ -321,7 +330,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", lineColor)
-        .attr("stroke-width", 0.4)
+        .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
 
@@ -330,27 +339,30 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr('clip-path', 'url(#clip)');
 
     // Append the dots but set their initial opacity to 0
-    const dots = dotsGroup.selectAll('.dot')
-        .data(dataSet)
-        .enter().append('circle')
-        .attr('class', 'dot')
-        .attr('cx', d => xScale(d.date))
-        .attr('cy', d => yScale(d[yAccessor]))
-        .attr('r', 1) // Set a larger radius for visibility
-        .attr('fill', 'steelblue')
-        .style('opacity', 0.5) // Initially hidden
-        .on('mouseover', function(event, d) {
+const dots = dotsGroup.selectAll('.dot')
+    .data(dataSet)
+    .enter().append('circle')
+    .attr('class', 'dot')
+    .attr('cx', d => xScale(d.date))
+    .attr('cy', d => yScale(d[yAccessor]))
+    .attr('r', 2) // Set a larger radius for visibility
+    .attr('fill', 'steelblue')
+    .style('opacity', 0.5) // Initially hidden
+    .on('mouseover', function(event, d) {
+        // Check if the value is 0 before showing the tooltip
+        if (d[yAccessor] !== 0) {
             d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
             tooltip.transition().duration(200).style('opacity', 0.9);
             const [x, y] = d3.pointer(event, this);
             tooltip.html(`Date: ${d3.timeFormat('%Y-%m-%d')(d.date)}<br/>Value: ${d[yAccessor]}`)
                 .style('left', (event.pageX + 5) + 'px')
                 .style('top', (event.pageY - 28) + 'px');
-        })
-        .on('mouseout', function() {
-            d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 3);
-            tooltip.transition().duration(200).style('opacity', 0);
-        });
+        }
+    })
+    .on('mouseout', function() {
+        d3.select(this).transition().duration(200).attr('fill', 'steelblue').attr('r', 3);
+        tooltip.transition().duration(200).style('opacity', 0);
+    });
 
     // Add mouse events to the line
 linePath.on('mouseover', function() {
