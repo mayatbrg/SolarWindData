@@ -1,5 +1,7 @@
 <html>
   <head>
+    <title>Viento Solar en Tiempo Real</title>
+    <link rel="icon" href="static/images/sun.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet" type="text/css">
 <style>
@@ -9,62 +11,56 @@
     font: 300 13px/18px 'Helvetica Neue', sans-serif;
     color: #000000;
     margin: 0px auto;
-    background-color: #ffffff;
+    background-color: rgba(255, 253, 242, 0.932)
   }
 
 .TITLE {  
-  padding: 20px 0;
-  background-color: #000000  ;
+  padding: 50px 0;
+  margin-bottom: 5px;
+  background-color: rgba(255, 253, 242, 0.932)
   }
 
 .date { 
-  text-align:left;
-  font-size: 1.2em 
+    margin-top: 15px; 
+  text-align:center;
+  font-size: 1.2em;
+  font-family: Georgia, 'Times New Roman', Times, serif
 }
 
 .last-update { 
-   text-align:right;
-   font-size: 1.2em }
+   text-align:center;
+   font-size: 0.8em; 
+   font-family: Georgia, 'Times New Roman', Times, serif
+}
 
 .maintitle {
   text-align: center;
-  font-size: 2em; 
+  font-size: 2.5em; 
   color: #000000;
   margin-top: 0px; 
   margin-bottom: 5px; 
-  font-family: Futura;  
+  font-family: Georgia, 'Times New Roman', Times, serif;  
  }
 
 .all-graphs { 
   display: flex;
   flex-direction: column; 
   align-items: center; 
-  padding: 0px;
+  padding: 40px;
   overflow: hidden; 
+  margin-top: 0px;
 }
 
 .small-graphs {
   width: 100%; 
   margin: 0px 0; 
   overflow: hidden;
-  background: rgb(255, 255, 255);
+  background: rgba(255, 253, 242, 0.932);
 }
-
- .graph-0 {
-    background-color:rgba(4, 77, 224, 0.091);}
-
-.graph-1 {
-    background-color:rgba(203, 201, 255,0.5);}
-
-.graph-2 { 
-    background-color:rgba(231, 252, 212,0.5); }
-
-.graph-3 {
-    background-color:rgba(248, 243, 224,0.5);}
 
  .title {
       width: 100%;
-      background: rgba(230, 214, 246, 0.169);
+      background: rgba(230, 214, 246, 0.096);
       text-align: center;
       cursor: pointer;
     }
@@ -72,7 +68,7 @@
 .axis text {
   font-family: sans-serif, sans-serif;
   font-size: 13px;
-  fill: black; 
+  fill: rgb(122, 122, 120); 
 }
 
 .tooltip {
@@ -80,7 +76,7 @@
             text-align: center;
             padding: 5px;
             font: 12px sans-serif;
-            background: lightsteelblue;
+            background: #9575cd ;
             border-radius: 4px;
             pointer-events: none;
             opacity: 0;
@@ -167,7 +163,9 @@ let currentData = {
 
 function graph(data) {
 
-    console.log("raw data",data)
+    if (isFirstLoad) {
+         // Si es la primera vez, guarda todos los datos iterados en currentData
+         console.log("raw data",data)
     //parse time
     const parseTime = function(timeString) {
     const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
@@ -189,6 +187,82 @@ function graph(data) {
          return [d.chartspeed, d.chartemperature, d.chartdensity].some(value => !isNaN(value));
         
         });
+    //diffierentiate data in labels
+    const Kp_indx = data.labelskp.map((label, index) => {
+        const KpDate = parseTime(label);
+             return {
+                date: KpDate,
+                kp:data.kp?.[index],
+                noaa_scale: data.noaa_scale?.[index], 
+            };
+     });
+
+     //diffierentiate data in labels
+    const MagData = data.labelsmag.map((label, index) => {
+        const MagDate = parseTime(label);
+             return {
+                date: MagDate,
+                chartbx: data.chartbx?.[index] || 0,
+                chartby: data.chartby?.[index] || 0,
+                chartbz: data.chartbz?.[index] || 0,
+            };
+     }).filter((d) => {
+
+     // Filter null or NaN
+             return [d.chartbx, d.chartby, d.chartbz,d.chartblon,d.chartlat,d.chartbt].some(value => !isNaN(value));
+     });
+         currentData.PlasmaData = PlasmaData;
+        currentData.MagData = MagData;
+        
+        console.log("scale:",Kp_indx)
+
+        createChart(Kp_indx,'#chart0', PlasmaData, 'chartspeed', '(km/s)', 'Velocidad', '#8e44ad');
+
+        createChart(Kp_indx,'#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Densidad', '#4a148c ');
+
+        createChart(Kp_indx,'#chart2', PlasmaData, 'chartemperature', 'K', 'Temperatura', '#7b1fa2');
+
+        createChart(Kp_indx,'#chart3', MagData, 'chartbx', 'nT', 'BX ', '#9575cd ');
+
+        //createChart('#chart3', MagData, 'chartby', 'nT', 'BY', '#00796b');
+
+        //createChart('#chart3', MagData, 'chartbz', 'nT', ' BZ', '#673ab7 ');
+    } 
+    
+    else {
+        console.log("raw data",data)
+    //parse time
+    const parseTime = function(timeString) {
+    const date = moment(timeString, 'YYYY-MM-DD HH:mm:ss.SSS');
+         return date.isValid() ? date.toDate() : null;  
+         };
+
+
+     //diffierentiate data in labels
+    const PlasmaData = data.labelsplasma.map((label, index) => {
+    const PlasmaDate = parseTime(label);
+        return {
+            date: PlasmaDate,
+            chartspeed: data.chartspeed?.[index] || 0,
+            chartemperature: data.chartemperature?.[index] || 0,
+            chartdensity: data.chartdensity?.[index] || 0,
+        };
+    }).filter((d) => {
+
+    // Filter null or NaN
+         return [d.chartspeed, d.chartemperature, d.chartdensity].some(value => !isNaN(value));
+        
+        });
+
+     //diffierentiate data in labels
+     const Kp_indx = data.labelskp.map((label, index) => {
+        const KpDate = parseTime(label);
+             return {
+                date: KpDate,
+                kp:data.kp?.[index],
+                noaa_scale: data.noaa_scale?.[index], 
+            };
+     });
 
     //diffierentiate data in labels
     const MagData = data.labelsmag.map((label, index) => {
@@ -205,29 +279,10 @@ function graph(data) {
              return [d.chartbx, d.chartby, d.chartbz,d.chartblon,d.chartlat,d.chartbt].some(value => !isNaN(value));
      });
 
-    if (isFirstLoad) {
-         // Si es la primera vez, guarda todos los datos iterados en currentData
-         currentData.PlasmaData = PlasmaData;
-        currentData.MagData = MagData;
-
-        createChart('#chart0', PlasmaData, 'chartspeed', '(km/s)', 'Speed', '#8e44ad');
-
-        createChart('#chart1', PlasmaData, 'chartdensity', '(1/cm^3)', 'Density', '#673ab7 ');
-
-        createChart('#chart2', PlasmaData, 'chartemperature', 'K', 'Temperature', '#00796b  ');
-
-        createChart('#chart3', MagData, 'chartbx', 'nT', 'BX ', '#e74c3c');
-
-        createChart('#chart3', MagData, 'chartby', 'nT', 'BY', '#00796b');
-
-        createChart('#chart3', MagData, 'chartbz', 'nT', ' BZ', '#673ab7 ');
-    } 
-    
-    else {
-
         const lastPlasmaData = PlasmaData.slice(-5);
         const lastMagData = MagData.slice(-5);
     
+        console.log ("nuevos:",lastPlasmaData)
         let NewData_mag= MagData;
 
         let NewData_plasma= PlasmaData;
@@ -241,28 +296,28 @@ function graph(data) {
         if (currentData.MagData.length > 1440) {
             currentData.MagData = currentData.MagData.slice(-1440);
                         }
-        console.log("new data:",currentData.MagData);
+        console.log("new data:",MagData);
 
-        console.log("new data:",currentData.PlasmaData);
+        console.log("new data:",PlasmaData);
 
-        UpdateChart('#chart3', currentData.MagData, 'chartbx', '#f4511e');
+        UpdateChart(Kp_indx,'#chart3', MagData, 'chartbx', '#9575cd ');
 
-        UpdateChart('#chart0', currentData.PlasmaData, 'chartspeed', '#8e44ad');
+        UpdateChart(Kp_indx,'#chart0', PlasmaData, 'chartspeed', '#8e44ad');
 
-        UpdateChart('#chart1',  currentData.PlasmaData, 'chartdensity','#673ab7 ');
+        UpdateChart(Kp_indx,'#chart1',  PlasmaData, 'chartdensity','#673ab7 ');
 
-        UpdateChart('#chart2', currentData.PlasmaData, 'chartemperature', '#00796b  ');
+        UpdateChart(Kp_indx,'#chart2', PlasmaData, 'chartemperature', '#7b1fa2 ');
 
          }
     }
 
-function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
+function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
     // select chart 
     const chart = d3.select(containerId);
      
     // margins of the page
     const margin = { top:25, right: 10, bottom: 100, left: 60 };
-    const width = 1390 - margin.left - margin.right;
+    const width = 1320 - margin.left - margin.right;
     const height =180 - margin.top - margin.bottom;
 
     //SVG
@@ -271,13 +326,6 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr('height','100%')
         .append('g')
         .attr('transform',`translate(${margin.left}, 45)`);
-
-    // Define clipping path to avoid elements spilling out
-    svg.append('defs').append('clipPath')
-        .attr('id', 'clip')
-        .append('rect')
-        .attr('width', width)
-        .attr('height', height);
 
     //Scales
     const xScale = d3.scaleTime()
@@ -312,10 +360,81 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .data([dataSet])
         .attr("class", "line")
         .attr("fill", "none")
-        .attr("stroke", lineColor)
+        .attr("stroke", 'rgb( 154, 157, 154)')
         .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
+     
+       function getColorsAndIn(yAccessor) {
+
+            let parameter = yAccessor
+
+            const colorsAndIndexes = [          
+            {speed: 1000, density: 10000,temperature:100000000,bx:-10, backgroundColor: '#c80000',  opacity: 1.2 },
+            {speed: 900, density: 5000,temperature:6000000,bx:-5, backgroundColor: '#ff0000',  opacity: 1},
+            { speed: 800, density: 4000,temperature:50000000,bx:-1, backgroundColor: '#ff9600',  opacity: 0.9 },
+            { speed: 700, density: 1000,temperature:10000000,bx:0, backgroundColor: '#ffc800',  opacity: 0.8 },
+            { speed: 600, density: 100,temperature:5000000,bx:10, backgroundColor: '#f6eb14',  opacity: 0.7 },
+            { speed: 500, density: 10,temperature:1000000,bx:5, backgroundColor: '#92d050',  opacity: 0.6 },
+            ];
+
+            var max= d3.max(dataSet, d => {
+        const value = parseFloat(d[yAccessor]);
+            return value}); 
+
+        for (var color in colorsAndIndexes) {
+            if (colorsAndIndexes.hasOwnProperty(color)) {
+                if(colorsAndIndexes[color].offset === undefined) {
+                    if(!isNaN((1 - colorsAndIndexes[color].parameter / max) * 100)
+                     && isFinite((1 - colorsAndIndexes[color].parameter / max) * 100) 
+                     && (1 - colorsAndIndexes[color].parameter / max) * 100 !== NaN) {
+                    colorsAndIndexes[color].offset = (1 - colorsAndIndexes[color].parameter / max) * 100;
+                } else {
+                    colorsAndIndexes[color].offset = 32;
+                }
+            }
+        }
+    }
+    console.log(colorsAndIndexes)      
+svg.append('defs')
+    .append('linearGradient')
+    .attr('gradientUnits', 'userSpaceOnUse').attr('id', 'gradient-area')
+    .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', yScale(0))
+    .selectAll('stop')
+    .data(colorsAndIndexes) 
+    .enter().append('stop')
+    .attr('offset', function(d) { return d.offset + '%'; })
+    .attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+        }
+  
+getColorsAndIn(yAccessor);
+
+console.log("elkp",Kp_indx)
+
+
+     // define the area
+     var area = d3.area()
+    .x(d => xScale(d.date))
+    .y0(height)
+    .y1(d => yScale(d[yAccessor]));
+
+    var defs = svg.append("defs");
+
+//clipping path to avoid elements spilling out
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("x", 0)
+    .attr("width", width)
+    .attr("height", height);
+
+  // add first area
+  svg.append("path")
+      .data([dataSet])
+      .attr("class", "area")
+      .attr('d', area)
+      .attr('style', 'fill: url(#gradient-area);')
+      .attr("clip-path", "url(#clip)");
 
     //zoom 
     const zoom = d3.zoom()
@@ -341,6 +460,9 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
 
         svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
+        
+        svg.select('.area')
+            .attr('d', area.x(d => new_xScale(d.date)));
            
         svg.selectAll('.dot')
         .attr('cx', d => new_xScale(d.date))
@@ -356,18 +478,11 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
             .style('opacity', scaleFactor > visibilityThreshold ? 1 : 0); // Show dots if zoomed in enough
      }
 
-    //clipping path to avoid elements spilling out
-    svg.append("defs").append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("x", 0)
-        .attr("width", width)
-        .attr("height", height);
-
     //X axis
     svg.append("g")
         .attr("class", "x-axis")
         .attr("clip-path", "url(#clip)")
+        .style("color",'rgb(154, 157, 154)')
         .attr("stroke-width", 3)
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
@@ -376,6 +491,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
     svg.append("g")
         .attr("class", "y-axis")
         .attr("stroke-width", 1)
+        .style("color",'rgb( 154, 157, 154)')
         .call(d3.axisLeft(yScale)
         .ticks(4)
         .tickFormat(function(d) {
@@ -393,38 +509,19 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr("dy", "0.5em")
         .style("text-anchor", "middle")
         .text(yLabel)
-        .style("fill", "#000000") 
+        .style("fill",'rgb( 154, 157, 154)') 
         .style("font-weight", "bold"); 
 
     //chart title
     svg.append("text")
-        .attr("x", 695)
+        .attr("x", width-1215)
         .attr("y", -15 )
         .attr("text-anchor", "middle")
         .attr("font-size", "15px")
-        .attr("font-weight", "bold")
-        .attr("fill", "#000000") 
+        .attr("fill",' black') 
+        .style("font-family", "Georgia, 'Times New Roman', Times, serif")
+        .style("font-weight", "bold")
         .text(titleText);
-
-    //differentiate starting/ending point 
-    const startPoint = dataSet[0];
-    const endPoint = dataSet[dataSet.length - 1];
-
-    svg.append("circle")
-        .attr("cx", xScale(startPoint.date))
-        .attr("cy", yScale(startPoint[yAccessor]))
-        .attr("r", 3)
-        .attr("fill", "green")
-        .attr("stroke", "black")
-        .attr("stroke-width", 0.5);
-
-    svg.append("circle")
-        .attr("cx", xScale(endPoint.date))
-        .attr("cy", yScale(endPoint[yAccessor]))
-        .attr("r", 3)
-        .attr("fill", "red")
-        .attr("stroke", "black")
-        .attr("stroke-width", 0.5);
 
     // Create a group for the dots
     const dotsGroup = svg.append('g')
@@ -438,7 +535,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d[yAccessor]))
         .attr('r', 1) // Set a larger radius for visibility
-        .attr('fill', lineColor)
+        .attr('fill','rgb( 154, 157, 154)')
         .style('opacity', 0.5) // Initially hidden
         .on('mouseover', function(event, d) {
             d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
@@ -449,7 +546,7 @@ function createChart(containerId, dataSet, yAccessor, yLabel, titleText, lineCol
                 .style('top', (event.pageY - 28) + 'px');
         })
         .on('mouseout', function() {
-            d3.select(this).transition().duration(200).attr('fill', lineColor).attr('r', 3);
+            d3.select(this).transition().duration(200).attr('fill', 'rgb( 154, 157, 154)').attr('r', 3);
             tooltip.transition().duration(200).style('opacity', 0);
         });
 
@@ -503,13 +600,13 @@ function updateLastUpdate() {
     }
 
 
-function UpdateChart(containerId, dataSet, yAccessor,lineColor){
+function UpdateChart(Kp_indx,containerId, dataSet, yAccessor,lineColor){
     console.log("Y:",yAccessor)
     // select chart 
     const chart = d3.select(containerId);
     // margins of the page
     const margin = { top:25, right: 10, bottom: 100, left: 60 };
-    const width = 1390 - margin.left - margin.right;
+    const width = 1320 - margin.left - margin.right;
     const height =180 - margin.top - margin.bottom;
 
     // Seleccionar el contenedor SVG y eliminar los elementos anteriores
@@ -519,24 +616,25 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
     svg.selectAll('.x-axis').remove();
     svg.selectAll('.y-axis').remove();
     svg.selectAll('.tooltip').remove();
+    svg.selectAll('.linePath').remove();
+    svg.selectAll('.rect').remove();
+    svg.selectAll('.area').remove();
 
     if (svg.empty()) {
         svg = chart.append('svg')
-            .attr('width', "100%")
-            .attr('height',"100%")
-            .append('g')
-            .attr('transform', `translate(${margin.left}, 45)`);
-        } 
+        .attr('width','100%')
+        .attr('height','100%')
+        .append('g')
+        .attr('transform',`translate(${margin.left}, 45)`);
 
-    else {
+    } else {
         svg = svg.select('g');
     }
-    
 
     //Scales
     const xScale = d3.scaleTime()
         .domain(d3.extent(dataSet, d => d.date))
-        .range([0, width+5]);
+        .range([0, width+10]);
 
     const minY = d3.min(dataSet.filter(d => d[yAccessor] !== 0), d => {
         const value = parseFloat(d[yAccessor]);
@@ -567,18 +665,96 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
         .data([dataSet])
         .attr("class", "line")
         .attr("fill", "none")
-        .attr("stroke", lineColor)
+        .attr("stroke",'rgb( 154, 157, 154)')
         .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
 
+    
+        function getColorsAndIn(yAccessor) {
+
+let parameter = yAccessor
+
+const colorsAndIndexes = [          
+{speed: 1000, density: 10000,temperature:100000000,bx:-10, backgroundColor: '#c80000',  opacity: 0.75 },
+{speed: 900, density: 5000,temperature:6000000,bx:-5, backgroundColor: '#ff0000',  opacity: 0.7},
+{ speed: 800, density: 4000,temperature:50000000,bx:-1, backgroundColor: '#ff9600',  opacity: 0.65 },
+{ speed: 700, density: 1000,temperature:10000000,bx:0, backgroundColor: '#ffc800',  opacity: 0.6 },
+{ speed: 600, density: 100,temperature:5000000,bx:10, backgroundColor: '#f6eb14',  opacity: 0.55 },
+{ speed: 500, density: 10,temperature:1000000,bx:5, backgroundColor: '#92d050',  opacity: 0.5 },
+];
+
+var max= d3.max(dataSet, d => {
+const value = parseFloat(d[yAccessor]);
+return value}); 
+
+for (var color in colorsAndIndexes) {
+if (colorsAndIndexes.hasOwnProperty(color)) {
+    if(colorsAndIndexes[color].offset === undefined) {
+        if(!isNaN((1 - colorsAndIndexes[color].speed / max) * 100)
+         && isFinite((1 - colorsAndIndexes[color].speed / max) * 100) 
+         && (1 - colorsAndIndexes[color].speed / max) * 100 !== NaN) {
+        colorsAndIndexes[color].offset = (1 - colorsAndIndexes[color].speed / max) * 100;
+    } else {
+        colorsAndIndexes[color].offset = 32;
+    }
+}
+}
+}
+console.log(colorsAndIndexes)      
+svg.append('defs')
+.append('linearGradient')
+.attr('gradientUnits', 'userSpaceOnUse').attr('id', 'gradient-area')
+.attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', yScale(0))
+.selectAll('stop')
+.data(colorsAndIndexes) 
+.enter().append('stop')
+.attr('offset', function(d) { return d.offset + '%'; })
+.attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+}
+
+getColorsAndIn(yAccessor);
+
+
+    // define the area
+    var area = d3.area()
+    .x(d => xScale(d.date))
+    .y0(height)
+    .y1(d => yScale(d[yAccessor]));
+
+    var defs = svg.append("defs");
+
+    //clipping path to avoid elements spilling out
+    svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("x", 0)
+    .attr("width", width)
+    .attr("height", height);
+
+     // add first area
+    svg.append("path")
+      .data([dataSet])
+      .attr("class", "area")
+      .attr('d', area)
+      .attr('style', 'fill: url(#gradient-area);')
+      .attr("clip-path", "url(#clip)");
+
+
     const zoom = d3.zoom()
-        .scaleExtent([1, 120])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
+        .scaleExtent([1, 240])
+        .translateExtent([[0, 0], [width+10, height]])
+        .extent([[0, 0], [width+10, height]])
         .on('zoom', zoomed);
 
-    svg.select('rect').call(zoom);  // Reapply zoom
+        //apply zoom to the graph
+     svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style("fill", "none")
+        .style('pointer-events', 'all')
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(zoom);
 
     function zoomed(event) {
         
@@ -589,6 +765,9 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
 
         svg.select('.line')
             .attr('d', line.x(d => new_xScale(d.date)));
+
+        svg.select('.area')
+            .attr('d', area.x(d => new_xScale(d.date)));
 
         svg.selectAll('.dot')
             .attr('cx', d => new_xScale(d.date))
@@ -608,6 +787,7 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
         .attr("class", "x-axis")
         .attr("clip-path", "url(#clip)")
         .attr("stroke-width", 1)
+        .style("color",'rgb(154, 157, 154)')
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
@@ -615,6 +795,7 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
     svg.append("g")
         .attr("class", "y-axis")
         .attr("stroke-width", 1)
+        .style("color",'rgb( 154, 157, 154)')
         .call(d3.axisLeft(yScale)
             .ticks(4)
             .tickFormat(function(d) {
@@ -636,7 +817,7 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yScale(d[yAccessor]))
         .attr('r', 1) // Set a larger radius for visibility
-        .attr('fill',lineColor)
+        .attr('fill','rgb( 154, 157, 154)')
         .style('opacity', 0.5) // Initially hidden
         .on('mouseover', function(event, d) {
             d3.select(this).transition().duration(200).attr('fill', 'orange').attr('r', 5);
@@ -647,7 +828,7 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
                 .style('top', (event.pageY - 28) + 'px');
         })
         .on('mouseout', function() {
-            d3.select(this).transition().duration(200).attr('fill', lineColor).attr('r', 3);
+            d3.select(this).transition().duration(200).attr('fill', 'rgb( 154, 157, 154)').attr('r', 3);
             tooltip.transition().duration(200).style('opacity', 0);
         });
 
@@ -657,6 +838,8 @@ function UpdateChart(containerId, dataSet, yAccessor,lineColor){
         .style('opacity', 0)
         .style('position', 'absolute') // Ensure the tooltip is absolutely positioned
         .style('pointer-events', 'none'); // Prevent mouse events from interfering
+
+        console.log("data en linea:",dataSet)
 
 }
 
