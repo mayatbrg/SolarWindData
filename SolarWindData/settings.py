@@ -25,8 +25,9 @@ SECRET_KEY = 'django-insecure-lh*i)$e%yw&+3z#4)pci^nfcoy1&=w*zp(b$*3hj91s^_9w_n=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['vercel.app']
 
+STATIC_ROOT = BASE_DIR / "staticfiles" / "static"
 
 # Application definition
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'SolarWindData.middleware.GreetingMiddleware'
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
