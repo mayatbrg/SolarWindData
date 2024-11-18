@@ -439,26 +439,30 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
-        function getColorsAndIn(yAccessor) {
-    let parameter = yAccessor;
 
-    const colorsAndIndexes = [
-        { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
-        { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
-        { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
-        { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
-        { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },
-        { speed: 0, density: 0, temperature: 0, bx: 0, backgroundColor: '#09BC04', opacity: 0.5 },
-    ];
    
-    // Obtener el valor máximo del dataset
-    var max = d3.max(dataSet, d => parseFloat(d[yAccessor]));
 
-    // Calcular los offsets para el gradiente
-    colorsAndIndexes.forEach((colorIndex, i) => {
-        // Calcular el offset basado en la posición
-        colorIndex.offset = (i / (colorsAndIndexes.length - 1)) * 100;
-    });
+    function getColorsAndIn(dataSet,yAccessor) {
+        let parameter = yAccessor;
+        const colorsAndIndexes = [
+            { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
+            { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
+            { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
+            { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
+            { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },
+            { speed: 0, density: 0, temperature: 0, bx: 0, backgroundColor: '#09BC04', opacity: 0.5 },
+        ];
+        
+        // Obtener el valor máximo del dataset
+        var max = d3.max(dataSet, d => parseFloat(d[yAccessor]));
+        console.log("Max value:", max);
+        
+        
+        // Calcular los offsets para el gradiente
+        colorsAndIndexes.forEach((colorIndex, i) => {
+             // Calcular el offset basado en la posición
+             colorIndex.offset = (i / (colorsAndIndexes.length - 1)) * 100;
+            });
 
     console.log(colorsAndIndexes);
 
@@ -470,38 +474,34 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr('x1', 0)
         .attr('y1', 0)
         .attr('x2', 0)
-        .attr('y2', yScale(0))
+        .attr('y2', yScale(max))
         .selectAll('stop')
         .data(colorsAndIndexes)
         .enter().append('stop')
         .attr('offset', function(d) { return d.offset + '%'; })
         .attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+           
 }
-
 // Llamar a la función
 getColorsAndIn(yAccessor);
 console.log("radiente",getColorsAndIn)
 
 console.log("elkp",Kp_indx)
-
-
-     // define the area
-     var area = d3.area()
+ // define the area
+ var area = d3.area()
     .x(d => xScale(d.date))
     .y0(height)
     .y1(d => yScale(d[yAccessor]));
 
-    var defs = svg.append("defs");
-
-//clipping path to avoid elements spilling out
-svg.append("defs").append("clipPath")
+    //clipping path to avoid elements spilling out
+    svg.append("defs").append("clipPath")
     .attr("id", "clip")
     .append("rect")
     .attr("x", 0)
     .attr("width", width)
     .attr("height", height);
-
-  // add first area
+  
+     // add first area
   svg.append("path")
       .data([dataSet])
       .attr("class", "area")
@@ -1099,52 +1099,50 @@ function UpdateChart(Kp_indx,containerId, dataSet, yAccessor,lineColor){
         .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
+        function getColorsAndIn(dataSet,yAccessor) {
+        let parameter = yAccessor;
+        const colorsAndIndexes = [
+            { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
+            { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
+            { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
+            { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
+            { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },
+            { speed: 0, density: 0, temperature: 0, bx: 0, backgroundColor: '#09BC04', opacity: 0.5 },
+        ];
+        
+        // Obtener el valor máximo del dataset
+        var max = d3.max(dataSet, d => parseFloat(d[yAccessor]));
+        console.log("Max value:", max);
+        
+        
+        // Calcular los offsets para el gradiente
+        colorsAndIndexes.forEach((colorIndex, i) => {
+             // Calcular el offset basado en la posición
+             colorIndex.offset = (i / (colorsAndIndexes.length - 1)) * 100;
+            });
 
-    
-        function getColorsAndIn(yAccessor) {
+    console.log(colorsAndIndexes);
 
-let parameter = yAccessor
-
-const colorsAndIndexes = [          
-{speed: 1000, density: 10000,temperature:100000000,bx:-10, backgroundColor: '#c80000',  opacity: 0.75 },
-{speed: 900, density: 5000,temperature:6000000,bx:-5, backgroundColor: '#ff0000',  opacity: 0.7},
-{ speed: 800, density: 4000,temperature:50000000,bx:-1, backgroundColor: '#ff9600',  opacity: 0.65 },
-{ speed: 700, density: 1000,temperature:10000000,bx:0, backgroundColor: '#ffc800',  opacity: 0.6 },
-{ speed: 600, density: 100,temperature:5000000,bx:10, backgroundColor: '#f6eb14',  opacity: 0.55 },
-{ speed: 500, density: 10,temperature:1000000,bx:5, backgroundColor: '#92d050',  opacity: 0.5 },
-];
-
-var max= d3.max(dataSet, d => {
-const value = parseFloat(d[yAccessor]);
-return value}); 
-
-for (var color in colorsAndIndexes) {
-if (colorsAndIndexes.hasOwnProperty(color)) {
-    if(colorsAndIndexes[color].offset === undefined) {
-        if(!isNaN((1 - colorsAndIndexes[color].speed / max) * 100)
-         && isFinite((1 - colorsAndIndexes[color].speed / max) * 100) 
-         && (1 - colorsAndIndexes[color].speed / max) * 100 !== NaN) {
-        colorsAndIndexes[color].offset = (1 - colorsAndIndexes[color].speed / max) * 100;
-    } else {
-        colorsAndIndexes[color].offset = 32;
-    }
-}
-}
-}
-console.log(colorsAndIndexes)      
-svg.append('defs')
-.append('linearGradient')
-.attr('gradientUnits', 'userSpaceOnUse').attr('id', 'gradient-area')
-.attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', yScale(0))
-.selectAll('stop')
-.data(colorsAndIndexes) 
-.enter().append('stop')
-.attr('offset', function(d) { return d.offset + '%'; })
-.attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+    // Crear el gradiente en SVG
+    svg.append('defs')
+        .append('linearGradient')
+        .attr('gradientUnits', 'userSpaceOnUse')
+        .attr('id', 'gradient-area')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', yScale(max))
+        .selectAll('stop')
+        .data(colorsAndIndexes)
+        .enter().append('stop')
+        .attr('offset', function(d) { return d.offset + '%'; })
+        .attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+           
 }
 
+// Llamar a la función
 getColorsAndIn(yAccessor);
-
+console.log("radiente",getColorsAndIn)
 
     // define the area
     var area = d3.area()
