@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-lh*i)$e%yw&+3z#4)pci^nfcoy1&=w*zp(b$*3hj91s^_9w_n=
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+#FALSE PARA HOSTING!
+ALLOWED_HOSTS = ['vercel.app', '127.0.0.1','viento-solar-en-tiempo-real.onrender.com']
 
-ALLOWED_HOSTS = ['vercel.app', '127.0.0.1', 'localhost','viento-solar-en-tiempo-real.onrender.com']
+#'vercel.app', '127.0.0.1','viento-solar-en-tiempo-real.onrender.com'
 
 STATIC_ROOT = BASE_DIR / "staticfiles" / "static"
 
@@ -81,20 +83,12 @@ WSGI_APPLICATION = 'SolarWindData.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-#DATABASES = {
-    #'default': {
-   #     'ENGINE': 'django.db.backends.sqlite3',
-  #      'NAME': BASE_DIR / 'db.sqlite3',
- #}
-
-# Replace the SQLite DATABASES configuration with PostgreSQL:
-
 DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default='postgresql://postgres:postgres@localhost:5432/SolarWindData',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+ }
+
 }
 
 # Password validation
@@ -133,7 +127,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-STATICFILES_DIRS =  os.path.join(BASE_DIR, 'staticfiles')  
+STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

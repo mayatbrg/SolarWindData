@@ -1,17 +1,23 @@
 <html>
   <head>
     <title>Viento Solar en Tiempo Real</title>
-    <link rel="icon" href="static/images/sun.png" type="image/x-icon">
+    <link rel="icon" href="staticfiles/images/sun.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:200" rel="stylesheet" type="text/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
 
    /* CSS  */
    body {
-    font: 300 13px/18px 'Helvetica Neue', sans-serif;
+    font-family: 'Roboto', sans-serif;
+    font: 300 13px/18px;
     color: #000000;
     margin: 0px auto;
-    background-color: rgba(255, 253, 242, 0.932)
+    padding: 0;
+    background-color: rgba(255, 253, 242, 0.932);
   }
 
 .TITLE {  
@@ -24,13 +30,13 @@
     margin-top: 15px; 
   text-align:center;
   font-size: 1.2em;
-  font-family: Georgia, 'Times New Roman', Times, serif
+  font-family: 'Roboto', sans-serif;
 }
 
 .last-update { 
    text-align:center;
    font-size: 0.8em; 
-   font-family: Georgia, 'Times New Roman', Times, serif
+   font-family: 'Roboto', sans-serif;
 }
 
 .maintitle {
@@ -39,26 +45,42 @@
   color: #000000;
   margin-top: 0px; 
   margin-bottom: 5px; 
-  font-family: Georgia, 'Times New Roman', Times, serif;  
+  font-family: '';  
  }
 
 .all-graphs { 
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   flex-direction: column; 
   align-items: center; 
-  padding: 40px;
+  padding: 0px;
   overflow: hidden; 
+  width: 100%;
   margin-top: 0px;
+  height: auto;
+  width: 100vw; 
 }
 
+
 .small-graphs {
+  margin: 5px 0;  
   width: 100%; 
-  margin: 0px 0; 
+  height: 200px; /* Set a height for the small graphs */
+  /* Add some margin for spacing */
+  background: rgba(255, 253, 242, 0.932);
+  display: flex; /* Enable flexbox for the small graphs */
+  justify-content: center; /* Center the content horizontally */
   overflow: hidden;
   background: rgba(255, 253, 242, 0.932);
+  margin-top: 10px; /* Add some margin to the top */;
+  border-radius: 10px;
+  border-radius: 10px;
+  flex-grow: 1;
 }
 
  .title {
+      font-family: 'Roboto', sans-serif;
       width: 100%;
       background: rgba(230, 214, 246, 0.096);
       text-align: center;
@@ -69,6 +91,27 @@
   font-family: sans-serif, sans-serif;
   font-size: 13px;
   fill: rgb(122, 122, 120); 
+}
+
+.label-bx {
+    fill: #e74c3c;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: darkgray;
+}
+
+.label-by {
+    fill: #00796b;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: darkgray;
+}
+
+.label-bz {
+    fill: #673ab7;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    color: darkgray;
 }
 
 .tooltip {
@@ -86,12 +129,15 @@
 
   /* Responsive Design */
   @media (max-width: 768px) {
-            .small-graphs {
-                width: 100%; 
-            }
-        }
+ 
+    .small-graphs {
+        height: 120px; /* Ajusta la altura para pantallas pequeñas */
+        margin: 5px 0;
+        padding: 20px; /* Reduce el margen */
+    }
+  }
 
-
+        
       </style>
   </head>
   <body>
@@ -222,11 +268,8 @@ function graph(data) {
 
         createChart(Kp_indx,'#chart2', PlasmaData, 'chartemperature', 'K', 'Temperatura', '#7b1fa2');
 
-        createChart(Kp_indx,'#chart3', MagData, 'chartbx', 'nT', 'BX ', '#9575cd ');
+        createCombinedMagChart('#chart3', MagData, 'Magnetic Field','nT');
 
-        //createChart('#chart3', MagData, 'chartby', 'nT', 'BY', '#00796b');
-
-        //createChart('#chart3', MagData, 'chartbz', 'nT', ' BZ', '#673ab7 ');
     } 
     
     else {
@@ -315,17 +358,49 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
     // select chart 
     const chart = d3.select(containerId);
      
-    // margins of the page
-    const margin = { top:25, right: 10, bottom: 100, left: 60 };
-    const width = 1320 - margin.left - margin.right;
-    const height =180 - margin.top - margin.bottom;
+   // margins of the page
+   const margin = { top:40, right: 10, bottom: 20, left: 60 };
+    // Get the width and height of the chart container
+    const width = parseInt(chart.style('width')) - margin.left - margin.right;
+    const height = parseInt(chart.style('height')) - margin.top - margin.bottom;
 
-    //SVG
+    // SVG
+    //center vertically the svg
     const svg = chart.append('svg')
-        .attr('width','100%')
-        .attr('height','100%')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr("viewBox", '0 0  width height')
+        .attr('preserveAspectRatio', 'xMinYMin meet')
+        .call(responsivefy)
         .append('g')
-        .attr('transform',`translate(${margin.left}, 45)`);
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+
+        function responsivefy(svg) {
+             
+             // Container is the DOM element, svg is appended.
+             // Then we measure the container and find its
+             // aspect ratio.
+             const container = d3.select(svg.node().parentNode),
+                 width = parseInt(svg.style('width'), 10),
+                 height = parseInt(svg.style('height'), 10),
+                 aspect = width / height;
+                  
+             // Add viewBox attribute to set the value to initial size
+             // add preserveAspectRatio attribute to specify how to scale 
+             // and call resize so that svg resizes on page load
+             svg.attr('viewBox', `0 0 ${width} ${height}`).
+             attr('preserveAspectRatio', 'xMinYMid').
+             call(resize);
+              
+             d3.select(window).on('resize.' + container.attr('id'), resize);
+   
+             function resize() {
+                 const targetWidth = parseInt(container.style('width'));
+                 svg.attr('width', targetWidth);
+                 svg.attr('height', Math.round(targetWidth / aspect));
+             }
+         }
 
     //Scales
     const xScale = d3.scaleTime()
@@ -364,50 +439,48 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr("stroke-width", 1)
         .attr("d", line(dataSet))
         .attr("clip-path", "url(#clip)");
-     
-       function getColorsAndIn(yAccessor) {
+        function getColorsAndIn(yAccessor) {
+    let parameter = yAccessor;
 
-            let parameter = yAccessor
+    const colorsAndIndexes = [
+        { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
+        { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
+        { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
+        { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
+        { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },
+        { speed: 500, density: 10, temperature: 1000000, bx: 5, backgroundColor: '#09BC04', opacity: 0.5 },
+    ];
+   
+    // Obtener el valor máximo del dataset
+    var max = d3.max(dataSet, d => parseFloat(d[yAccessor]));
 
-            const colorsAndIndexes = [          
-            {speed: 1000, density: 10000,temperature:100000000,bx:-10, backgroundColor: '#c80000',  opacity: 1.2 },
-            {speed: 900, density: 5000,temperature:6000000,bx:-5, backgroundColor: '#ff0000',  opacity: 1},
-            { speed: 800, density: 4000,temperature:50000000,bx:-1, backgroundColor: '#ff9600',  opacity: 0.9 },
-            { speed: 700, density: 1000,temperature:10000000,bx:0, backgroundColor: '#ffc800',  opacity: 0.8 },
-            { speed: 600, density: 100,temperature:5000000,bx:10, backgroundColor: '#f6eb14',  opacity: 0.7 },
-            { speed: 500, density: 10,temperature:1000000,bx:5, backgroundColor: '#92d050',  opacity: 0.6 },
-            ];
+    // Calcular los offsets para el gradiente
+    colorsAndIndexes.forEach((colorIndex, i) => {
+        // Calcular el offset basado en la posición
+        colorIndex.offset = (i / (colorsAndIndexes.length - 1)) * 100;
+    });
 
-            var max= d3.max(dataSet, d => {
-        const value = parseFloat(d[yAccessor]);
-            return value}); 
+    console.log(colorsAndIndexes);
 
-        for (var color in colorsAndIndexes) {
-            if (colorsAndIndexes.hasOwnProperty(color)) {
-                if(colorsAndIndexes[color].offset === undefined) {
-                    if(!isNaN((1 - colorsAndIndexes[color].parameter / max) * 100)
-                     && isFinite((1 - colorsAndIndexes[color].parameter / max) * 100) 
-                     && (1 - colorsAndIndexes[color].parameter / max) * 100 !== NaN) {
-                    colorsAndIndexes[color].offset = (1 - colorsAndIndexes[color].parameter / max) * 100;
-                } else {
-                    colorsAndIndexes[color].offset = 32;
-                }
-            }
-        }
-    }
-    console.log(colorsAndIndexes)      
-svg.append('defs')
-    .append('linearGradient')
-    .attr('gradientUnits', 'userSpaceOnUse').attr('id', 'gradient-area')
-    .attr('x1', 0).attr('y1', 0).attr('x2', 0).attr('y2', yScale(0))
-    .selectAll('stop')
-    .data(colorsAndIndexes) 
-    .enter().append('stop')
-    .attr('offset', function(d) { return d.offset + '%'; })
-    .attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
-        }
-  
+    // Crear el gradiente en SVG
+    svg.append('defs')
+        .append('linearGradient')
+        .attr('gradientUnits', 'userSpaceOnUse')
+        .attr('id', 'gradient-area')
+        .attr('x1', 0)
+        .attr('y1', 0)
+        .attr('x2', 0)
+        .attr('y2', yScale(0))
+        .selectAll('stop')
+        .data(colorsAndIndexes)
+        .enter().append('stop')
+        .attr('offset', function(d) { return d.offset + '%'; })
+        .attr('style', function(d) { return 'stop-color:' + d.backgroundColor + ';stop-opacity:' + d.opacity; });
+}
+
+// Llamar a la función
 getColorsAndIn(yAccessor);
+console.log("radiente",getColorsAndIn)
 
 console.log("elkp",Kp_indx)
 
@@ -484,6 +557,7 @@ svg.append("defs").append("clipPath")
         .attr("clip-path", "url(#clip)")
         .style("color",'rgb(154, 157, 154)')
         .attr("stroke-width", 3)
+        .style("font",'Roboto')
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
 
@@ -514,13 +588,12 @@ svg.append("defs").append("clipPath")
 
     //chart title
     svg.append("text")
-        .attr("x", width-1215)
+        .attr("x", width-1780)
         .attr("y", -15 )
         .attr("text-anchor", "middle")
-        .attr("font-size", "15px")
-        .attr("fill",' black') 
-        .style("font-family", "Georgia, 'Times New Roman', Times, serif")
-        .style("font-weight", "bold")
+        .attr("font-size", "18px")
+        .attr("fill",' grey') 
+        .style("font-family","Roboto, sans-serif")
         .text(titleText);
 
     // Create a group for the dots
@@ -578,6 +651,362 @@ svg.append("defs").append("clipPath")
         .style('pointer-events', 'none'); // Prevent mouse events from interfering
         }
 
+
+//funcion para crear el grafico combinado
+function createCombinedMagChart(containerId, dataSet, titleText,yLabel) {
+    // Select chart 
+    const chart = d3.select(containerId);
+     
+    // margins of the page
+    const margin = { top:40, right: 10, bottom: 20, left: 60 };
+    // Get the width and height of the chart container
+    const width = parseInt(chart.style('width')) - margin.left - margin.right;
+    const height = parseInt(chart.style('height')) - margin.top - margin.bottom;
+
+    // SVG
+    //center vertically the svg
+    const svg = chart.append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .append('g')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    // Scales
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(dataSet, d => d.date))
+        .range([0, width]);
+
+    const minY = d3.min(dataSet, d => Math.min(d.chartbx, d.chartby, d.chartbz));
+    const maxY = d3.max(dataSet, d => Math.max(d.chartbx, d.chartby, d.chartbz));
+
+    
+    const yScale = d3.scaleLinear()
+        .domain([minY, maxY])
+        .range([height, 0])
+        .nice();
+    const zoom = d3.zoom()
+        .scaleExtent([1, 120])
+        .translateExtent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height]])
+        .on('zoom', zoomed);
+
+         //apply zoom to the graph
+        svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style("fill", "none")
+        .style('pointer-events', 'all')
+        .attr("transform", `translate(${margin.left}, ${margin.top})`)
+        .call(zoom);
+    function zoomed(event) {
+    const new_xScale = event.transform.rescaleX(xScale);
+
+    // Update the x-axis
+    svg.select('.x-axis')
+        .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+    // Update each line based on the new xScale, keeping yScale fixed
+    lines.forEach(lineInfo => {
+        const lineData = dataSet.map(d => ({ date: d.date, value: d[lineInfo.key] }));
+        svg.selectAll(`.line-${lineInfo.key}`)
+            .attr('d', d3.line()
+                .x(d => new_xScale(d.date)) // Use new xScale
+                .y(d => yScale(d.value)) // Keep using the original yScale
+                .defined(d => d.value !== 0 && d.value !== null && !isNaN(d.value))
+            );
+    });
+
+    // Update dots based on new xScale, keeping yScale fixed
+    svg.selectAll('.dot')
+        .attr('cx', d => new_xScale(d.date))
+        .attr('cy', d => yScale(d[yAccessor])); // Keep using the original yScale
+
+    // Determine the scale factor for dot visibility
+    const scaleFactor = event.transform.k;
+
+    // Set a threshold for visibility; adjust this value as needed
+    const visibilityThreshold = 5; // Dots will be visible when zoomed in more than 5 times
+
+    svg.selectAll('.dot')
+        .style('opacity', scaleFactor > visibilityThreshold ? 1 : 0); // Show dots if zoomed in enough
+    }
+    // Clipping path to avoid elements spilling out
+    svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0) // Ensure the y position is 0
+    .attr("width", width)
+    .attr("height", height);
+    // Line function
+    const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.value))
+        .defined(d => d.value !== 0 && d.value !== null && !isNaN(d.value));
+
+    // Create lines for each value
+    const lines = [
+        { key: 'chartbx', color: '#DC143C', label: 'Bx', class: 'label-bx'  },
+        { key: 'chartby', color: '#db7e21', label: 'By', class: 'label-by'  },
+        { key: 'chartbz', color: '#7edb21', label: 'Bz', class: 'label-bz'  }
+    ];
+
+    // Create tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute')
+        .style('pointer-events', 'none');
+
+    lines.forEach(lineInfo => {
+        // Create a new dataset for the line
+        const lineData = dataSet.map(d => ({ date: d.date, value: d[lineInfo.key] }));
+
+        // Append the line
+        const linePath = svg.append("path")
+            .data([lineData])
+            .attr("class", `line line-${lineInfo.key}`)
+            .attr("stroke", lineInfo.color)
+            .attr("stroke-width", 1)
+            .attr("fill",'none')
+            .attr("clip-path", "url(#clip)")
+            .attr("d", line(lineData));
+
+        // Add mouse events for tooltip
+        linePath.on('mouseover', function() {
+            d3.select(this).style('opacity', 0.8);
+        })
+        .on('mousemove', function(event) {
+            const mouseX = d3.pointer(event)[0]; // Get mouse X position
+            const x0 = xScale.invert(mouseX); // Convert mouse X to the corresponding date
+            const index = d3.bisectLeft(lineData.map(d => d.date), x0); // Find the index of the closest date
+
+            // Select the nearest data point
+            const closestDataPoint = lineData[index];
+
+            // Show tooltip if a data point is found
+            if (closestDataPoint) {
+                tooltip.transition().duration(200).style('opacity', 0.9);
+                tooltip.html(`Date: ${d3.timeFormat('%d %b %H:%M')(closestDataPoint.date)}<br>${lineInfo.label}: ${closestDataPoint.value}`)
+                    .style('left', (event.pageX + 5) + 'px')
+                    .style('top', (event.pageY - 28) + 'px');
+            }
+        })
+        .on('mouseout', function() {
+            d3.select(this).style('opacity', 1);
+            tooltip.transition().duration(500).style('opacity', 0);
+        });
+    });
+
+    // // X axis
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("clip-path", "url(#clip)")
+        .style("color",'rgb(154, 157, 154)')
+        .attr("stroke-width", 3)
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+    // Y axis
+    svg.append("g")
+        .attr("class", "y-axis")
+        .attr("Stroke-width", 1)
+        .style("color",'rgb(154, 157, 154)')
+        .call(d3.axisLeft(yScale)
+        .ticks(4)
+        .tickFormat(function(d) {
+            return d > 9999 ? d3.format(".2e")(d) : d3.format(",.0f")(d);
+         }))
+        .call(g => g.selectAll(".tick line").clone()
+        .attr("x2", width )
+        .attr("stroke-opacity", 0.1));
+
+         //Y label 
+         svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left +10)
+        .attr("x", -height / 2)
+        .attr("dy", "0.5em")
+        .style("text-anchor", "middle")
+        .text(yLabel)
+        .style("fill",'rgb( 154, 157, 154)') 
+        .style("font-weight", "bold"); 
+    
+    // Add legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(-58, 0)`); // Position the legend
+
+    lines.forEach((lineInfo, i) => {
+        legend.append("rect")
+            .attr("x", (i * 25)+60)
+            .attr("y", -20)
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", lineInfo.color);
+
+        legend.append("text")
+            .attr("x", (i * 25)+60)
+            .attr("y", -25)
+            .attr("font-size", "18px")
+            .attr("fill",' grey') 
+            .style("font-family","Roboto, sans-serif")
+            .text(lineInfo.label);
+    });
+}
+//funcion para actualizar el grafico combinado 
+function UpdateCombinedMagChart(containerId, dataSet) {
+    const chart = d3.select(containerId);
+    const margin = { top:40, right: 10, bottom: 20, left: 60 };
+    const width = 1390 - margin.left - margin.right;
+    const height = 180 - margin.top - margin.bottom;
+
+    // Select the existing SVG and remove previous elements
+    let svg = chart.select("svg");
+    svg.selectAll('.line').remove();
+    svg.selectAll('.dot').remove();
+    svg.selectAll('.x-axis').remove();
+    svg.selectAll('.y-axis').remove();
+
+    if (svg.empty()) {
+        svg = chart.append('svg')
+            .attr('width', "100%")
+            .attr('height', "100%")
+            .append('g')
+            .attr('transform', `translate(${margin.left}, 45)`);
+    } else {
+        svg = svg.select('g');
+    }
+
+    // Scales
+    const xScale = d3.scaleTime()
+        .domain(d3.extent(dataSet, d => d.date))
+        .range([0, width]);
+
+    const minY = d3.min(dataSet, d => Math.min(d.chartbx, d.chartby, d.chartbz));
+    const maxY = d3.max(dataSet, d => Math.max(d.chartbx, d.chartby, d.chartbz));
+
+    const yScale = d3.scaleLinear()
+        .domain([minY, maxY])
+        .range([height, 0])
+        .nice();
+
+    // Create tooltip
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0)
+        .style('position', 'absolute')
+        .style('pointer-events', 'none');
+
+    // Create lines for each value
+    const lines = [
+        { key: 'chartbx', color: '#e74c3c', label: 'BX' },
+        { key: 'chartby', color: '#92d050', label: 'BY' },
+        { key: 'chartbz', color: '#673ab7', label: 'BZ' }
+    ];
+
+    lines.forEach(lineInfo => {
+        // Create a new dataset for the line
+        const lineData = dataSet.map(d => ({ date: d.date, value: d[lineInfo.key] }));
+
+        // Append the line
+        const linePath = svg.append("path")
+            .data([lineData])
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", lineInfo.color)
+            .attr("stroke-width", 1)
+            .attr("d", d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d.value))
+                .defined(d => d.value !== 0 && d.value !== null && !isNaN(d.value)));
+
+        // Add mouse events for tooltip
+        linePath.on('mouseover', function() {
+            d3.select(this).style('opacity', 0.8);
+        })
+        .on('mousemove', function(event) {
+            const mouseX = d3.pointer(event)[0]; // Get mouse X position
+            const x0 = xScale.invert(mouseX); // Convert mouse X to the corresponding date
+            const index = d3.bisectLeft(lineData.map(d => d.date), x0); // Find the index of the closest date
+
+            // Select the nearest data point
+            const closestDataPoint = lineData[index];
+
+            // Show tooltip if a data point is found
+            if (closestDataPoint) {
+                tooltip.transition().duration(200).style('opacity', 0.9);
+                tooltip.html(`Date: ${d3.timeFormat('%d %b %H:%M')(closestDataPoint.date)}<br>${lineInfo.label}: ${closestDataPoint.value}`)
+                    .style('left', (event.pageX + 5) + 'px')
+                    .style('top', (event .pageY - 28) + 'px');
+            }
+        })
+        .on('mouseout', function() {
+            d3.select(this).style('opacity', 1);
+            tooltip.transition().duration(500).style('opacity', 0);
+        });
+    });
+
+    // X axis
+    svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+    // Y axis
+    svg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScale).ticks(4));
+
+    // Apply the zoom behavior to the updated chart
+    const zoom = d3.zoom()
+        .scaleExtent([1, 120])
+        .translateExtent([[0, 0], [width, height]])
+        .extent([[0, 0], [width, height]])
+        .on('zoom', zoomed);
+
+    svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style("fill", "none")
+        .style('pointer-events', 'all')
+        .call(zoom);
+
+    function zoomed(event) {
+        const new_xScale = event.transform.rescaleX(xScale);
+
+        // Update the x-axis
+        svg.select('.x-axis')
+            .call(d3.axisBottom(new_xScale).tickFormat(d3.timeFormat('%H:%M')));
+
+        // Update each line based on the new xScale, keeping yScale fixed
+        lines.forEach(lineInfo => {
+            const lineData = dataSet.map(d => ({ date: d.date, value: d[lineInfo.key] }));
+            svg.selectAll(`.line`)
+                .attr('d', d3.line()
+                    .x(d => new_xScale(d.date)) // Use new xScale
+                    .y(d => yScale(d.value)) // Keep using the original yScale
+                    .defined(d => d.value !== 0 && d.value !== null && !isNaN(d.value))
+                )
+                .attr("clip-path", "url(#clip)");
+        });
+
+        // Update dots based on new xScale, keeping yScale fixed
+        svg.selectAll('.dot')
+            .attr('cx', d => new_xScale(d.date))
+            .attr('cy', d => yScale(d[yAccessor])); // Keep using the original yScale
+
+        // Determine the scale factor for dot visibility
+        const scaleFactor = event.transform.k;
+
+        // Set a threshold for visibility; adjust this value as needed
+        const visibilityThreshold = 5; // Dots will be visible when zoomed in more than 5 times
+
+        svg.selectAll('.dot')
+            .style('opacity', scaleFactor > visibilityThreshold ? 1 : 0); // Show dots if zoomed in enough
+    }
+}
+
+
 // Función para actualizar la fecha y hora
 function updateDate() {
     const now = new Date();
@@ -604,10 +1033,11 @@ function UpdateChart(Kp_indx,containerId, dataSet, yAccessor,lineColor){
     console.log("Y:",yAccessor)
     // select chart 
     const chart = d3.select(containerId);
-    // margins of the page
-    const margin = { top:25, right: 10, bottom: 100, left: 60 };
-    const width = 1320 - margin.left - margin.right;
-    const height =180 - margin.top - margin.bottom;
+   // margins of the page
+   const margin = { top:40, right: 10, bottom: 20, left: 60 };
+    // Get the width and height of the chart container
+    const width = parseInt(chart.style('width')) - margin.left - margin.right;
+    const height = parseInt(chart.style('height')) - margin.top - margin.bottom;
 
     // Seleccionar el contenedor SVG y eliminar los elementos anteriores
     let svg = chart.select("svg");
