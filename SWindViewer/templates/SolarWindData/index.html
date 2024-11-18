@@ -417,6 +417,8 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
             return value; 
         });
 
+    var maxvalue= maxY
+
     console.log("Min Value:", minY); 
     console.log("Max Value:", maxY); 
 
@@ -442,21 +444,22 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
 
    
 
-    function getColorsAndIn(dataSet,yAccessor) {
-        let parameter = yAccessor;
+    function getColorsAndIn(dataSet,yAccessor,svg) {
         const colorsAndIndexes = [
-        
-            { speed: 500, density: 0, temperature: 0, bx: 0, backgroundColor: '#09BC04', opacity: 0.5 },
-            { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },
-            { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
-            { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
-            { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
-            { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
+        { speed: 1000, density: 10000, temperature: 100000000, bx: -10, backgroundColor: '#FF0D0D', opacity: 0.8 },
+        { speed: 900, density: 5000, temperature: 6000000, bx: -5, backgroundColor: '#FF4E11', opacity: 0.7 },
+        { speed: 800, density: 4000, temperature: 50000000, bx: -1, backgroundColor: '#FF8E15', opacity: 0.65 },
+        { speed: 700, density: 1000, temperature: 10000000, bx: 0, backgroundColor: '#FAB733', opacity: 0.6 },
+        { speed: 600, density: 100, temperature: 5000000, bx: 10, backgroundColor: '#FFFE2A', opacity: 0.55 },   
+        { speed: 500, density: 0, temperature: 0, bx: 0, backgroundColor: '#09BC04', opacity: 0.5 },
+          
+           
+           
         ];
         
         // Obtener el valor máximo del dataset
-        var max = d3.max(dataSet, d => parseFloat(d[yAccessor]));
-        console.log("Max value:", max);
+        max=maxvalue
+        console.log("maximo",max)
         
         
         // Calcular los offsets para el gradiente
@@ -475,7 +478,7 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr('x1', 0)
         .attr('y1', 0)
         .attr('x2', 0)
-        .attr('y2', yScale(max))
+        .attr('y2', yScale(0))
         .selectAll('stop')
         .data(colorsAndIndexes)
         .enter().append('stop')
@@ -484,7 +487,8 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
            
 }
 // Llamar a la función
-getColorsAndIn(yAccessor);
+getColorsAndIn(dataSet,yAccessor,svg);
+
 console.log("radiente",getColorsAndIn)
 
 console.log("elkp",Kp_indx)
