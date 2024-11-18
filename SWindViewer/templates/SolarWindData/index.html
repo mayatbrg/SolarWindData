@@ -369,7 +369,7 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
     const svg = chart.append('svg')
         .attr('width', '100%')
         .attr('height', '100%')
-        .attr("viewBox", '0 0  width height')
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .attr('preserveAspectRatio', 'xMinYMin meet')
         .call(responsivefy)
         .append('g')
@@ -588,7 +588,7 @@ console.log("elkp",Kp_indx)
 
     //chart title
     svg.append("text")
-        .attr("x", width-1780)
+        .attr("x", width-1300)
         .attr("y", -15 )
         .attr("text-anchor", "middle")
         .attr("font-size", "18px")
