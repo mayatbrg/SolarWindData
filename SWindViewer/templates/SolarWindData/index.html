@@ -196,7 +196,7 @@ function fetchData() {
 }
 
 // Call fetchData every min
-setInterval(fetchData, 300000);
+setInterval(fetchData, 6000000);
 
 // Initial call to fetch data immediately on page load
 fetchData();
@@ -478,7 +478,7 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr('x1', 0)
         .attr('y1', 0)
         .attr('x2', 0)
-        .attr('y2', yScale(0))
+        .attr('y2', yScale(max))
         .selectAll('stop')
         .data(colorsAndIndexes)
         .enter().append('stop')
