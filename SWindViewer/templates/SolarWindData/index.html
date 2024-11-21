@@ -18,18 +18,16 @@
     margin: 0px auto;
     padding: 0;
     background-color: rgba(255, 253, 242, 0.932);
+    width: 100%;
   }
 
 .TITLE {  
-  padding: 0px 0;
-  margin-bottom: 0px;
-  background-color: rgba(255, 253, 242, 0.932)
+  background-color: rgba(255, 253, 242, 0.932);
   }
 
 .date { 
-    margin-top: 15px; 
   text-align:center;
-  font-size: 1.2em;
+  font-size: 1.1em;
   font-family: 'Roboto', sans-serif;
 }
 
@@ -44,7 +42,7 @@
   font-size: 2.5em; 
   color: #000000;
   margin-top: 0px; 
-  margin-bottom: 0px; 
+  margin-bottom: 5px; 
   font-family: '';  
  }
 
@@ -200,6 +198,7 @@ setInterval(fetchData, 6000000);
 
 // Initial call to fetch data immediately on page load
 fetchData();
+
  
 //lugar dde se va a guardar la data 
 let currentData = {
@@ -354,13 +353,6 @@ function graph(data) {
          }
     }
     
-    
-    const zoom = d3.zoom()
-    .scaleExtent([1, 10])
-    .translateExtent([[0, 0], [width, height]])
-    .extent([[0, 0], [width, height]])
-    .on("zoom", zoomed);
-
 // Función para manejar el evento de zoom
 function zoomed(event) {
     graphs.forEach((graph) => {
@@ -1001,19 +993,6 @@ function UpdateCombinedMagChart(containerId, dataSet) {
 }
 
 
-// Función para actualizar la fecha y hora
-function updateDate() {
-    const now = new Date();
-    const formattedDate = now.toLocaleString(); // Formato de fecha y hora
-    d3.select('#currentDate') // Selecciona el elemento con id 'currentDate'
-        .text(formattedDate); // Actualiza el texto
-        }
-
-// Llama a la función al cargar la página
-updateDate();
-// Actualiza cada minuto (60000 ms)
-setInterval(updateDate, 1000);
-
 
 function updateLastUpdate() {
     const now = new Date();
@@ -1021,6 +1000,7 @@ function updateLastUpdate() {
     d3.select('#lastUpdate') // Selecciona el elemento con id 'lastUpdate'
     .text(`Última actualización: ${formattedTime}`); // Actualiza el texto
     }
+
 
 
 function UpdateChart(Kp_indx,containerId, dataSet, yAccessor,lineColor){
@@ -1262,9 +1242,28 @@ console.log("radiente",getColorsAndIn)
         .style('pointer-events', 'none'); // Prevent mouse events from interfering
 
         console.log("data en linea:",dataSet)
-
 }
 
+
+// Función para actualizar la fecha y hora
+function updateDate() {
+    const now = new Date();
+    const options = { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric'
+    }
+    const formattedDate = now.toLocaleDateString('es-ES', options);
+    d3.select('#currentDate') // Selecciona el elemento con id 'currentDate'
+        .text(formattedDate); // Actualiza el texto
+        }
+
+// Llama a la función al cargar la página
+updateDate();
+// Actualiza cada minuto (60000 ms)
+setInterval(updateDate, 1000);
+
+console.log("current date",formattedDate)
 </script>
   </body>
 </html>
