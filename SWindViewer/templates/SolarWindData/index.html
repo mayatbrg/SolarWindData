@@ -21,8 +21,8 @@
   }
 
 .TITLE {  
-  padding: 50px 0;
-  margin-bottom: 5px;
+  padding: 0px 0;
+  margin-bottom: 0px;
   background-color: rgba(255, 253, 242, 0.932)
   }
 
@@ -44,7 +44,7 @@
   font-size: 2.5em; 
   color: #000000;
   margin-top: 0px; 
-  margin-bottom: 5px; 
+  margin-bottom: 0px; 
   font-family: '';  
  }
 
@@ -119,7 +119,7 @@
             text-align: center;
             padding: 5px;
             font: 12px sans-serif;
-            background: #9575cd ;
+            background: #c7c7c7;
             border-radius: 4px;
             pointer-events: none;
             opacity: 0;
@@ -353,6 +353,22 @@ function graph(data) {
 
          }
     }
+    
+    
+    const zoom = d3.zoom()
+    .scaleExtent([1, 10])
+    .translateExtent([[0, 0], [width, height]])
+    .extent([[0, 0], [width, height]])
+    .on("zoom", zoomed);
+
+// Función para manejar el evento de zoom
+function zoomed(event) {
+    graphs.forEach((graph) => {
+        graph.select(".x-axis").call(d3.axisBottom(event.transform.rescaleX(graph.xScale)));
+        graph.select(".line-path").attr("transform", event.transform);
+    });
+}   
+
 
 function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText, lineColor) {
     // select chart 
@@ -370,38 +386,11 @@ function createChart(Kp_indx,containerId, dataSet, yAccessor, yLabel, titleText,
         .attr('width', '100%')
         .attr('height', '100%')
         .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-        .attr('preserveAspectRatio', 'xMinYMin meet')
-        .call(responsivefy)
         .append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
 
-        function responsivefy(svg) {
-             
-             // Container is the DOM element, svg is appended.
-             // Then we measure the container and find its
-             // aspect ratio.
-             const container = d3.select(svg.node().parentNode),
-                 width = parseInt(svg.style('width'), 10),
-                 height = parseInt(svg.style('height'), 10),
-                 aspect = width / height;
-                  
-             // Add viewBox attribute to set the value to initial size
-             // add preserveAspectRatio attribute to specify how to scale 
-             // and call resize so that svg resizes on page load
-             svg.attr('viewBox', `0 0 ${width} ${height}`).
-             attr('preserveAspectRatio', 'xMinYMid').
-             call(resize);
-              
-             d3.select(window).on('resize.' + container.attr('id'), resize);
-   
-             function resize() {
-                 const targetWidth = parseInt(container.style('width'));
-                 svg.attr('width', targetWidth);
-                 svg.attr('height', Math.round(targetWidth / aspect));
-             }
-         }
-
+      
     //Scales
     const xScale = d3.scaleTime()
         .domain(d3.extent(dataSet, d => d.date))
@@ -593,7 +582,7 @@ console.log("elkp",Kp_indx)
 
     //chart title
     svg.append("text")
-        .attr("x", width-1300)
+        .attr("x", 25)
         .attr("y", -15 )
         .attr("text-anchor", "middle")
         .attr("font-size", "18px")
@@ -624,7 +613,7 @@ console.log("elkp",Kp_indx)
                 .style('top', (event.pageY - 28) + 'px');
         })
         .on('mouseout', function() {
-            d3.select(this).transition().duration(200).attr('fill', 'rgb( 154, 157, 154)').attr('r', 3);
+            d3.select(this).transition().duration(200).attr('fill', 'gray').attr('r', 3);
             tooltip.transition().duration(200).style('opacity', 0);
         });
 
@@ -1261,7 +1250,7 @@ console.log("radiente",getColorsAndIn)
                 .style('top', (event.pageY - 28) + 'px');
         })
         .on('mouseout', function() {
-            d3.select(this).transition().duration(200).attr('fill', 'rgb( 154, 157, 154)').attr('r', 3);
+            d3.select(this).transition().duration(200).attr('fill', 'gray)').attr('r', 3);
             tooltip.transition().duration(200).style('opacity', 0);
         });
 
